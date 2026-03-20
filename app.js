@@ -10,6 +10,8 @@ class App {
         this.gantt = new GanttChart('ganttChart');
         this.editingDeps = [];
         this.confirmCallback = null;
+        this.upcomingDaysFilter = 7;
+        this.upcomingDeptFilter = 'all';
 
         this.init();
     }
@@ -158,6 +160,20 @@ class App {
         container.innerHTML = html || '<div class="empty-state"><div class="empty-state-text">אין פרויקטים</div></div>';
     }
 
+    filterUpcomingTasks(days, btn) {
+        btn.closest('.filter-group').querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        this.upcomingDaysFilter = days;
+        this.renderUpcomingTasks();
+    }
+
+    filterUpcomingDept(dept, btn) {
+        btn.closest('.filter-group').querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        this.upcomingDeptFilter = dept;
+        this.renderUpcomingTasks();
+    }
+
     renderUpcomingTasks() {
         const container = document.getElementById('upcomingTasks');
         const now = new Date();
@@ -165,6 +181,20 @@ class App {
 
         let tasks = store.getTasks({ notCompleted: true, rootOnly: true });
         tasks = tasks.filter(t => t.dueDate);
+
+        // Department filter
+        if (this.upcomingDeptFilter && this.upcomingDeptFilter !== 'all') {
+            tasks = tasks.filter(t => t.department === this.upcomingDeptFilter);
+        }
+
+        // Time filter
+        if (this.upcomingDaysFilter > 0) {
+            const futureDate = new Date();
+            futureDate.setDate(futureDate.getDate() + this.upcomingDaysFilter);
+            const futureDateStr = futureDate.toISOString().split('T')[0];
+            tasks = tasks.filter(t => t.dueDate <= futureDateStr);
+        }
+
         tasks.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
         tasks = tasks.slice(0, 10);
 
