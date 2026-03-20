@@ -103,10 +103,12 @@ class Store {
 
             if (!this.firebaseReady) {
                 this.firebaseReady = true;
+                updateSyncStatus(true);
                 console.log('Firebase sync ready');
             }
         }, err => {
             console.error('SubProjects listener error:', err);
+            updateSyncStatus(false);
         });
 
         // Listener for tasks
@@ -118,6 +120,7 @@ class Store {
             this.debouncedNotify();
         }, err => {
             console.error('Tasks listener error:', err);
+            updateSyncStatus(false);
         });
     }
 
