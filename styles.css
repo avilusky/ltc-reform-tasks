@@ -1692,38 +1692,52 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(6px);
     z-index: 200;
     justify-content: center;
-    align-items: flex-start;
-    padding: 40px 20px;
+    align-items: center;
+    padding: 20px;
     overflow-y: auto;
+    animation: fadeIn 0.15s ease;
 }
 
 .modal-overlay.active {
     display: flex;
 }
 
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
 .modal {
     background: var(--bg-card);
     border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
     box-shadow: var(--shadow-lg);
     width: 100%;
     max-width: 600px;
-    animation: modalIn 0.3s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.25s ease;
+}
+
+.modal.modal-form {
+    background: #f0f4fb;
+    max-width: 50vw;
 }
 
 .modal.modal-lg {
-    max-width: 800px;
+    max-width: 75vw;
 }
 
 .modal.modal-sm {
-    max-width: 400px;
+    max-width: 380px;
 }
 
-@keyframes modalIn {
-    from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px) scale(0.98); }
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
@@ -1731,41 +1745,48 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 24px;
+    padding: 16px 20px;
     border-bottom: 1px solid var(--border);
+    background: transparent;
 }
 
 .modal-header h2 {
-    font-size: 18px;
-    font-weight: 700;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--primary);
 }
 
 .modal-close {
     background: none;
     border: none;
-    font-size: 24px;
+    font-size: 22px;
     cursor: pointer;
     color: var(--text-secondary);
     padding: 4px 8px;
-    border-radius: var(--radius-sm);
-    transition: all var(--transition);
+    line-height: 1;
+    transition: color 0.15s ease;
 }
 
 .modal-close:hover {
-    background: var(--bg);
-    color: var(--text);
+    color: #ef4444;
 }
 
 .modal-body {
-    padding: 24px;
+    padding: 20px;
+}
+
+.modal-body form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
 .modal-actions {
     display: flex;
     gap: 10px;
-    justify-content: flex-start;
-    margin-top: 20px;
-    padding-top: 16px;
+    align-items: center;
+    padding: 16px 20px;
+    margin: 4px -20px -20px -20px;
     border-top: 1px solid var(--border);
 }
 
@@ -1773,11 +1794,40 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
     margin-right: auto;
 }
 
+.modal-actions .btn-secondary {
+    background: transparent;
+    color: var(--text-secondary);
+    border: none;
+    font-weight: 500;
+}
+
+.modal-actions .btn-secondary:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text);
+}
+
+.modal-actions .btn-primary {
+    padding: 9px 22px;
+    border-radius: 8px;
+    min-width: 70px;
+}
+
+/* Confirm modal centered text */
+.modal-sm .modal-body {
+    text-align: center;
+    padding: 24px 20px 12px;
+}
+
+.modal-sm .modal-actions {
+    border-top: none;
+    justify-content: center;
+    padding-top: 8px;
+}
+
 /* ============ Forms ============ */
 .form-row {
     display: flex;
     gap: 16px;
-    margin-bottom: 16px;
 }
 
 .form-group {
@@ -1791,22 +1841,23 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
 }
 
 .form-group label {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea {
-    padding: 8px 12px;
+    padding: 9px 12px;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     font-size: 14px;
+    font-family: inherit;
     color: var(--text);
     background: var(--bg-card);
-    transition: border var(--transition), box-shadow var(--transition);
+    transition: all 0.15s ease;
 }
 
 .form-group input:focus,
@@ -1814,7 +1865,7 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
 .form-group textarea:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .form-group textarea {
