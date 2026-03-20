@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ניהול משימות - רפורמת הביטוח הסיעודי | רשות שוק ההון</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span class="logo-icon">🏛️</span>
+                <span class="logo-text">רפורמת סיעוד</span>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle" title="כיווץ תפריט">☰</button>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-label">ניווט ראשי</div>
+            <a class="nav-item active" data-page="dashboard" href="#">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">ראשי</span>
+            </a>
+            <a class="nav-item" data-page="subprojects" href="#">
+                <span class="nav-icon">📁</span>
+                <span class="nav-text">פרויקטים</span>
+            </a>
+            <a class="nav-item" data-page="tasks" href="#">
+                <span class="nav-icon">✅</span>
+                <span class="nav-text">משימות</span>
+            </a>
+            <a class="nav-item" data-page="calendar" href="#">
+                <span class="nav-icon">📅</span>
+                <span class="nav-text">לוח שנה</span>
+            </a>
+            <a class="nav-item" data-page="gantt" href="#">
+                <span class="nav-icon">📈</span>
+                <span class="nav-text">תרשים גאנט</span>
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-label">מחלקות</div>
+            <div class="dept-badges">
+                <span class="dept-badge" data-dept="product" style="--dept-color: #3b82f6">🏥 מוצר</span>
+                <span class="dept-badge" data-dept="actuarial" style="--dept-color: #10b981">📊 אקטואריה</span>
+                <span class="dept-badge" data-dept="legal" style="--dept-color: #8b5cf6">⚖️ משפטית</span>
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <button class="btn-reset" id="btnResetData" title="איפוס נתונים">🔄 איפוס</button>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content" id="mainContent">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="topbar-right">
+                <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+                <h1 class="page-title" id="pageTitle">ראשי</h1>
+            </div>
+            <div class="topbar-left">
+                <span class="topbar-info">רשות שוק ההון, ביטוח וחיסכון</span>
+            </div>
+        </header>
+
+        <!-- ============ Dashboard Page ============ -->
+        <section class="page active" id="page-dashboard">
+            <div class="stats-grid">
+                <div class="stat-card" style="--accent: #3b82f6">
+                    <div class="stat-icon">📁</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="statActiveProjects">0</div>
+                        <div class="stat-label">פרויקטים פעילים</div>
+                    </div>
+                </div>
+                <div class="stat-card" style="--accent: #10b981">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="statCompletedTasks">0</div>
+                        <div class="stat-label">משימות שהושלמו</div>
+                    </div>
+                </div>
+                <div class="stat-card" style="--accent: #f59e0b">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="statInProgressTasks">0</div>
+                        <div class="stat-label">משימות בביצוע</div>
+                    </div>
+                </div>
+                <div class="stat-card" style="--accent: #ef4444">
+                    <div class="stat-icon">🚫</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="statBlockedTasks">0</div>
+                        <div class="stat-label">משימות חסומות</div>
+                    </div>
+                </div>
+                <div class="stat-card" style="--accent: #dc2626">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="statOverdueTasks">0</div>
+                        <div class="stat-label">משימות באיחור</div>
+                    </div>
+                </div>
+                <div class="stat-card" style="--accent: #8b5cf6">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="statTotalTasks">0</div>
+                        <div class="stat-label">סה"כ משימות</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Upcoming Deadlines -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>משימות קרובות</h3>
+                    </div>
+                    <div class="card-body" id="upcomingTasks"></div>
+                </div>
+
+                <!-- Sub-Project Progress -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>התקדמות פרויקטים</h3>
+                    </div>
+                    <div class="card-body" id="spProgress"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ Sub-Projects Page ============ -->
+        <section class="page" id="page-subprojects">
+            <div class="page-actions">
+                <button class="btn btn-primary" id="btnAddSubProject">+ פרויקט חדש</button>
+            </div>
+            <div class="subprojects-grid" id="subprojectsGrid"></div>
+        </section>
+
+        <!-- ============ Tasks Page ============ -->
+        <section class="page" id="page-tasks">
+            <div class="tasks-sticky-header">
+                <div class="page-actions">
+                    <button class="btn btn-primary" id="btnAddTask">+ משימה חדשה</button>
+                    <div class="filters-bar">
+                        <select id="filterSubProject" class="filter-select">
+                            <option value="">כל הפרויקטים</option>
+                        </select>
+                        <select id="filterDepartment" class="filter-select">
+                            <option value="">כל המחלקות</option>
+                            <option value="product">מוצר</option>
+                            <option value="actuarial">אקטואריה</option>
+                            <option value="legal">משפטית</option>
+                        </select>
+                        <select id="filterStatus" class="filter-select">
+                            <option value="">כל הסטטוסים</option>
+                            <option value="not-started">טרם התחיל</option>
+                            <option value="in-progress">בביצוע</option>
+                            <option value="waiting">ממתין</option>
+                            <option value="blocked">חסום</option>
+                            <option value="review">בבדיקה</option>
+                            <option value="completed">הושלם</option>
+                        </select>
+                        <select id="filterPriority" class="filter-select">
+                            <option value="">כל העדיפויות</option>
+                            <option value="critical">קריטי</option>
+                            <option value="high">גבוה</option>
+                            <option value="medium">בינוני</option>
+                            <option value="low">נמוך</option>
+                        </select>
+                        <label class="filter-checkbox">
+                            <input type="checkbox" id="filterNotCompleted"> הסתר שהושלמו
+                        </label>
+                    </div>
+                </div>
+                <div class="task-columns-header">
+                    <div></div>
+                    <div>משימה</div>
+                    <div>מחלקה</div>
+                    <div>עדיפות</div>
+                    <div>התחלה</div>
+                    <div>סיום</div>
+                    <div>סטטוס</div>
+                    <div>התקדמות</div>
+                </div>
+            </div>
+            <div class="tasks-container" id="tasksContainer"></div>
+        </section>
+
+        <!-- ============ Calendar Page ============ -->
+        <section class="page" id="page-calendar">
+            <div class="calendar-header">
+                <button class="calendar-nav-btn" id="calPrev">→</button>
+                <h2 id="calTitle">מרץ 2026</h2>
+                <button class="calendar-nav-btn" id="calNext">←</button>
+                <button class="btn btn-primary" id="calToday" style="margin-right:8px;font-size:13px;padding:6px 16px;">היום</button>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+        </section>
+
+        <!-- ============ Gantt Page ============ -->
+        <section class="page" id="page-gantt">
+            <div class="gantt-controls">
+                <div class="gantt-filters">
+                    <select id="ganttSubProject" class="filter-select">
+                        <option value="">כל הפרויקטים</option>
+                    </select>
+                    <select id="ganttDepartment" class="filter-select">
+                        <option value="">כל המחלקות</option>
+                        <option value="product">מוצר</option>
+                        <option value="actuarial">אקטואריה</option>
+                        <option value="legal">משפטית</option>
+                    </select>
+                </div>
+                <div class="gantt-zoom">
+                    <span>תצוגה:</span>
+                    <button class="btn btn-sm gantt-zoom-btn" data-zoom="week">יום</button>
+                    <button class="btn btn-sm gantt-zoom-btn active" data-zoom="month">שבוע</button>
+                    <button class="btn btn-sm gantt-zoom-btn" data-zoom="quarter">חודש</button>
+                </div>
+            </div>
+            <div class="gantt-container" id="ganttContainer">
+                <div class="gantt-chart" id="ganttChart"></div>
+            </div>
+            <div class="gantt-legend">
+                <span class="legend-item"><span class="legend-color" style="background: #3b82f6"></span> מוצר</span>
+                <span class="legend-item"><span class="legend-color" style="background: #10b981"></span> אקטואריה</span>
+                <span class="legend-item"><span class="legend-color" style="background: #8b5cf6"></span> משפטית</span>
+                <span class="legend-item"><span class="legend-arrow">→</span> תלות</span>
+            </div>
+        </section>
+    </main>
+
+    <!-- ============ Task Modal ============ -->
+    <div class="modal-overlay" id="taskModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="taskModalTitle">משימה חדשה</h2>
+                <button class="modal-close" id="taskModalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="taskForm">
+                    <input type="hidden" id="taskId">
+                    <input type="hidden" id="taskParentId">
+
+                    <div class="form-row">
+                        <div class="form-group full">
+                            <label for="taskTitle">כותרת המשימה *</label>
+                            <input type="text" id="taskTitle" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="taskSubProject">פרויקט *</label>
+                            <select id="taskSubProject" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="taskDepartment">מחלקה אחראית</label>
+                            <select id="taskDepartment">
+                                <option value="product">מוצר</option>
+                                <option value="actuarial">אקטואריה</option>
+                                <option value="legal">משפטית</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="taskAssignee">אחראי</label>
+                            <input type="text" id="taskAssignee">
+                        </div>
+                        <div class="form-group">
+                            <label for="taskPriority">עדיפות</label>
+                            <select id="taskPriority">
+                                <option value="critical">קריטי</option>
+                                <option value="high">גבוה</option>
+                                <option value="medium" selected>בינוני</option>
+                                <option value="low">נמוך</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="taskStartDate">תאריך התחלה</label>
+                            <input type="date" id="taskStartDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="taskDueDate">תאריך יעד</label>
+                            <input type="date" id="taskDueDate">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="taskStatus">סטטוס</label>
+                            <select id="taskStatus">
+                                <option value="not-started">טרם התחיל</option>
+                                <option value="in-progress">בביצוע</option>
+                                <option value="waiting">ממתין</option>
+                                <option value="blocked">חסום</option>
+                                <option value="review">בבדיקה</option>
+                                <option value="completed">הושלם</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="taskProgress">התקדמות (%)</label>
+                            <div class="progress-input-row">
+                                <input type="range" id="taskProgress" min="0" max="100" step="5" value="0">
+                                <span id="taskProgressValue">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group full">
+                            <label for="taskDescription">תיאור</label>
+                            <textarea id="taskDescription" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group full">
+                            <label>תלויות (משימות חוסמות)</label>
+                            <div class="dependencies-section">
+                                <div class="dependencies-list" id="dependenciesList"></div>
+                                <div class="add-dependency-row">
+                                    <select id="depTaskSelect" class="filter-select">
+                                        <option value="">בחר משימה...</option>
+                                    </select>
+                                    <select id="depTypeSelect" class="filter-select dep-type-select">
+                                        <option value="FS">סיום-התחלה</option>
+                                        <option value="SS">התחלה-התחלה</option>
+                                        <option value="FF">סיום-סיום</option>
+                                    </select>
+                                    <button type="button" class="btn btn-sm btn-secondary" id="btnAddDep">+ הוסף</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group full">
+                            <label for="taskNotes">הערות</label>
+                            <textarea id="taskNotes" rows="2"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="submit" class="btn btn-primary">שמור</button>
+                        <button type="button" class="btn btn-secondary" id="taskModalCancel">ביטול</button>
+                        <button type="button" class="btn btn-danger" id="taskModalDelete" style="display:none">מחק</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ Sub-Project Modal ============ -->
+    <div class="modal-overlay" id="spModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="spModalTitle">פרויקט חדש</h2>
+                <button class="modal-close" id="spModalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="spForm">
+                    <input type="hidden" id="spId">
+
+                    <div class="form-row">
+                        <div class="form-group full">
+                            <label for="spName">שם הפרויקט *</label>
+                            <input type="text" id="spName" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group full">
+                            <label for="spDescription">תיאור</label>
+                            <textarea id="spDescription" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="spOwner">מחלקה אחראית</label>
+                            <select id="spOwner">
+                                <option value="product">מוצר</option>
+                                <option value="actuarial">אקטואריה</option>
+                                <option value="legal">משפטית</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="spStatus">סטטוס</label>
+                            <select id="spStatus">
+                                <option value="planning">בתכנון</option>
+                                <option value="active">פעיל</option>
+                                <option value="on-hold">מושהה</option>
+                                <option value="completed">הושלם</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="spStartDate">תאריך התחלה</label>
+                            <input type="date" id="spStartDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="spEndDate">תאריך סיום</label>
+                            <input type="date" id="spEndDate">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="spColor">צבע</label>
+                            <input type="color" id="spColor" value="#3b82f6">
+                        </div>
+                        <div class="form-group">
+                            <label for="spIcon">אייקון</label>
+                            <select id="spIcon">
+                                <option value="📁">📁</option>
+                                <option value="🔍">🔍</option>
+                                <option value="⚖️">⚖️</option>
+                                <option value="🔄">🔄</option>
+                                <option value="🆕">🆕</option>
+                                <option value="📊">📊</option>
+                                <option value="📜">📜</option>
+                                <option value="📅">📅</option>
+                                <option value="📢">📢</option>
+                                <option value="🏥">🏥</option>
+                                <option value="💰">💰</option>
+                                <option value="📋">📋</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="submit" class="btn btn-primary">שמור</button>
+                        <button type="button" class="btn btn-secondary" id="spModalCancel">ביטול</button>
+                        <button type="button" class="btn btn-danger" id="spModalDelete" style="display:none">מחק</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ Task Detail Modal ============ -->
+    <div class="modal-overlay" id="taskDetailModal">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h2 id="taskDetailTitle">פרטי משימה</h2>
+                <button class="modal-close" id="taskDetailClose">&times;</button>
+            </div>
+            <div class="modal-body" id="taskDetailBody"></div>
+        </div>
+    </div>
+
+    <!-- ============ Day Detail Modal ============ -->
+    <div class="modal-overlay" id="dayModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="dayModalTitle">משימות ליום</h2>
+                <button class="modal-close" id="dayModalClose">&times;</button>
+            </div>
+            <div class="modal-body" id="dayModalBody"></div>
+        </div>
+    </div>
+
+    <!-- Confirm Dialog -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h2>אישור</h2>
+                <button class="modal-close" id="confirmClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">האם אתה בטוח?</p>
+                <div class="modal-actions">
+                    <button class="btn btn-danger" id="confirmYes">אישור</button>
+                    <button class="btn btn-secondary" id="confirmNo">ביטול</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display:none">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <!-- Scripts -->
+    <script src="store.js"></script>
+    <script src="calendar.js"></script>
+    <script src="gantt.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
