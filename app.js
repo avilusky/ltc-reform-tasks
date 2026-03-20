@@ -450,13 +450,15 @@ class App {
         const deptVal = document.getElementById('filterDepartment').value;
         const statusVal = document.getElementById('filterStatus').value;
         const priorityVal = document.getElementById('filterPriority').value;
-        const notCompleted = document.getElementById('filterNotCompleted').checked;
 
         if (spVal) filters.subProjectId = spVal;
         if (deptVal) filters.department = deptVal;
-        if (statusVal) filters.status = statusVal;
+        if (statusVal === 'not-completed') {
+            filters.notCompleted = true;
+        } else if (statusVal) {
+            filters.status = statusVal;
+        }
         if (priorityVal) filters.priority = priorityVal;
-        if (notCompleted) filters.notCompleted = true;
 
         return filters;
     }
@@ -465,7 +467,14 @@ class App {
         ['filterSubProject', 'filterDepartment', 'filterStatus', 'filterPriority'].forEach(id => {
             document.getElementById(id).addEventListener('change', () => this.renderTasks());
         });
-        document.getElementById('filterNotCompleted').addEventListener('change', () => this.renderTasks());
+    }
+
+    resetTaskFilters() {
+        document.getElementById('filterSubProject').value = '';
+        document.getElementById('filterDepartment').value = '';
+        document.getElementById('filterStatus').value = 'not-completed';
+        document.getElementById('filterPriority').value = '';
+        this.renderTasks();
     }
 
     populateSubProjectFilter(selectId) {
@@ -599,7 +608,7 @@ class App {
         document.getElementById('taskPriority').value = task.priority || 'medium';
         document.getElementById('taskStartDate').value = task.startDate || '';
         document.getElementById('taskDueDate').value = task.dueDate || '';
-        document.getElementById('taskStatus').value = task.status || 'not-started';
+        document.getElementById('taskStatus').value = task.status || 'waiting';
         document.getElementById('taskProgress').value = task.progress || 0;
         document.getElementById('taskProgressValue').textContent = (task.progress || 0) + '%';
         document.getElementById('taskNotes').value = task.notes || '';

@@ -166,34 +166,42 @@
                 <div class="page-actions">
                     <button class="btn btn-primary" id="btnAddTask">+ משימה חדשה</button>
                     <div class="filters-bar">
-                        <select id="filterSubProject" class="filter-select">
-                            <option value="">כל הפרויקטים</option>
-                        </select>
-                        <select id="filterDepartment" class="filter-select">
-                            <option value="">כל המחלקות</option>
-                            <option value="product">מוצר</option>
-                            <option value="actuarial">אקטואריה</option>
-                            <option value="legal">משפטית</option>
-                        </select>
-                        <select id="filterStatus" class="filter-select">
-                            <option value="">כל הסטטוסים</option>
-                            <option value="not-started">טרם התחיל</option>
-                            <option value="in-progress">בביצוע</option>
-                            <option value="waiting">ממתין</option>
-                            <option value="blocked">חסום</option>
-                            <option value="review">בבדיקה</option>
-                            <option value="completed">הושלם</option>
-                        </select>
-                        <select id="filterPriority" class="filter-select">
-                            <option value="">כל העדיפויות</option>
-                            <option value="critical">קריטי</option>
-                            <option value="high">גבוה</option>
-                            <option value="medium">בינוני</option>
-                            <option value="low">נמוך</option>
-                        </select>
-                        <label class="filter-checkbox">
-                            <input type="checkbox" id="filterNotCompleted"> הסתר שהושלמו
-                        </label>
+                        <div class="filter-item">
+                            <label class="filter-label">פרויקט:</label>
+                            <select id="filterSubProject" class="filter-select">
+                                <option value="">כל הפרויקטים</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label class="filter-label">מחלקה:</label>
+                            <select id="filterDepartment" class="filter-select">
+                                <option value="">כל המחלקות</option>
+                                <option value="product">מוצר</option>
+                                <option value="actuarial">אקטואריה</option>
+                                <option value="legal">משפטית</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label class="filter-label">סטטוס:</label>
+                            <select id="filterStatus" class="filter-select">
+                                <option value="">הכל</option>
+                                <option value="not-completed" selected>לא הושלם</option>
+                                <option value="waiting">ממתין</option>
+                                <option value="in-progress">בביצוע</option>
+                                <option value="completed">הושלם</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label class="filter-label">עדיפות:</label>
+                            <select id="filterPriority" class="filter-select">
+                                <option value="">כל העדיפויות</option>
+                                <option value="critical">קריטי</option>
+                                <option value="high">גבוה</option>
+                                <option value="medium">בינוני</option>
+                                <option value="low">נמוך</option>
+                            </select>
+                        </div>
+                        <button class="btn-filter-reset" onclick="app.resetTaskFilters()">🔄 איפוס</button>
                     </div>
                 </div>
                 <div class="task-columns-header">
@@ -319,11 +327,8 @@
                         <div class="form-group">
                             <label for="taskStatus">סטטוס</label>
                             <select id="taskStatus">
-                                <option value="not-started">טרם התחיל</option>
-                                <option value="in-progress">בביצוע</option>
                                 <option value="waiting">ממתין</option>
-                                <option value="blocked">חסום</option>
-                                <option value="review">בבדיקה</option>
+                                <option value="in-progress">בביצוע</option>
                                 <option value="completed">הושלם</option>
                             </select>
                         </div>

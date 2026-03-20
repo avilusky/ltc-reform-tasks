@@ -14,12 +14,16 @@ const DEPARTMENTS = {
 
 // Status definitions
 const TASK_STATUSES = {
-    'not-started': { label: 'טרם התחיל', color: '#94a3b8', icon: '○' },
+    'waiting': { label: 'ממתין', color: '#94a3b8', icon: '○' },
     'in-progress': { label: 'בביצוע', color: '#3b82f6', icon: '◐' },
-    'waiting': { label: 'ממתין', color: '#f59e0b', icon: '⏸' },
-    'blocked': { label: 'חסום', color: '#ef4444', icon: '🚫' },
-    'review': { label: 'בבדיקה', color: '#a855f7', icon: '👁' },
     'completed': { label: 'הושלם', color: '#10b981', icon: '✓' }
+};
+
+// Map old statuses to new ones
+const STATUS_MIGRATION = {
+    'not-started': 'waiting',
+    'blocked': 'waiting',
+    'review': 'waiting'
 };
 
 const SUBPROJECT_STATUSES = {
@@ -67,7 +71,7 @@ class Store {
             if (data) {
                 const parsed = JSON.parse(data);
                 this.subProjects = parsed.subProjects || [];
-                this.tasks = parsed.tasks || [];
+                this.tasks = (parsed.tasks || []).map(t => this.migrateStatus(t));
             } else {
                 this.seedData();
                 this.saveLocal();
@@ -115,7 +119,7 @@ class Store {
         db.collection(COLLECTIONS.tasks).onSnapshot(snapshot => {
             if (!this._seedChecked) return; // Wait for subProjects check first
 
-            this.tasks = snapshot.docs.map(doc => doc.data());
+            this.tasks = snapshot.docs.map(doc => this.migrateStatus(doc.data()));
             this.saveLocal();
             this.debouncedNotify();
         }, err => {
@@ -149,6 +153,13 @@ class Store {
         } catch (e) {
             console.error('Failed to save to localStorage:', e);
         }
+    }
+
+    migrateStatus(task) {
+        if (STATUS_MIGRATION[task.status]) {
+            task.status = STATUS_MIGRATION[task.status];
+        }
+        return task;
     }
 
     save() {
@@ -301,7 +312,7 @@ class Store {
             startDate: data.startDate || null,
             dueDate: data.dueDate || null,
             priority: data.priority || 'medium',
-            status: data.status || 'not-started',
+            status: data.status || 'waiting',
             progress: data.progress || 0,
             dependencies: data.dependencies || [],
             notes: data.notes || '',
@@ -362,7 +373,7 @@ class Store {
             const depTask = this.getTask(dep.taskId);
             if (!depTask) return false;
             if (dep.type === 'FS') return depTask.status !== 'completed';
-            if (dep.type === 'SS') return depTask.status === 'not-started';
+            if (dep.type === 'SS') return depTask.status === 'waiting';
             return false;
         });
     }
@@ -375,7 +386,7 @@ class Store {
                 const depTask = this.getTask(dep.taskId);
                 if (!depTask) return false;
                 if (dep.type === 'FS') return depTask.status !== 'completed';
-                if (dep.type === 'SS') return depTask.status === 'not-started';
+                if (dep.type === 'SS') return depTask.status === 'waiting';
                 return false;
             })
             .map(dep => ({ ...dep, task: this.getTask(dep.taskId) }));
@@ -393,7 +404,7 @@ class Store {
             totalTasks: allTasks.length,
             completedTasks: allTasks.filter(t => t.status === 'completed').length,
             inProgressTasks: allTasks.filter(t => t.status === 'in-progress').length,
-            blockedTasks: allTasks.filter(t => t.status === 'blocked' || this.isTaskBlocked(t.id)).length,
+            blockedTasks: allTasks.filter(t => this.isTaskBlocked(t.id)).length,
             overdueTasks: allTasks.filter(t => {
                 if (!t.dueDate || t.status === 'completed') return false;
                 return new Date(t.dueDate) < now;
@@ -575,7 +586,7 @@ class Store {
                 description: 'סבסוד צולב, כפל רגולציה, חברות מיצוי זכויות, לחץ ציבורי',
                 department: 'product', assignee: 'אבי לוסקי',
                 startDate: '2026-03-10', dueDate: '2026-04-10',
-                priority: 'high', status: 'not-started', progress: 0,
+                priority: 'high', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't2', type: 'SS' }],
                 notes: '', order: 2,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -586,7 +597,7 @@ class Store {
                 description: 'ארבע קבוצות מימון: ממשלתי, סל בריאות, מערכת ייעודית, פרטי',
                 department: 'product', assignee: '',
                 startDate: '2026-03-15', dueDate: '2026-04-15',
-                priority: 'medium', status: 'not-started', progress: 0,
+                priority: 'medium', status: 'waiting', progress: 0,
                 dependencies: [], notes: '', order: 3,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
             },
@@ -596,7 +607,7 @@ class Store {
                 description: 'משמעות קריסת הביטוח ל-4.9 מיליון מבוטחים, חישוב פער כיסוי',
                 department: 'actuarial', assignee: '',
                 startDate: '2026-03-20', dueDate: '2026-04-20',
-                priority: 'high', status: 'not-started', progress: 0,
+                priority: 'high', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't2', type: 'FS' }],
                 notes: 'תלוי בנתונים אקטואריים', order: 4,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -609,7 +620,7 @@ class Store {
                 description: 'מצב קיים, פתרון ממלכתי, מודל חיסכון+ביטוח, שילוב בפנסיה',
                 department: 'product', assignee: 'אבי לוסקי',
                 startDate: '2026-03-15', dueDate: '2026-04-15',
-                priority: 'high', status: 'not-started', progress: 0,
+                priority: 'high', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't1', type: 'FS' }, { taskId: 't2', type: 'FS' }],
                 notes: 'דורש את סקירת הרקע והנתונים האקטואריים', order: 0,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -620,7 +631,7 @@ class Store {
                 description: 'ניתוח כלכלי מפורט עם תרחישים שונים',
                 department: 'actuarial', assignee: '',
                 startDate: '2026-04-01', dueDate: '2026-05-01',
-                priority: 'critical', status: 'not-started', progress: 0,
+                priority: 'critical', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't6', type: 'SS' }, { taskId: 't5', type: 'FS' }],
                 notes: '', order: 1,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -631,7 +642,7 @@ class Store {
                 description: 'התאמה לחקיקה קיימת, צורך בחקיקה חדשה, סיכונים משפטיים',
                 department: 'legal', assignee: '',
                 startDate: '2026-04-01', dueDate: '2026-05-01',
-                priority: 'high', status: 'not-started', progress: 0,
+                priority: 'high', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't6', type: 'SS' }],
                 notes: '', order: 2,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -642,7 +653,7 @@ class Store {
                 description: 'מסמך המלצה סופי עם נימוקים, המלצה על מודל חיסכון+ביטוח',
                 department: 'product', assignee: 'אבי לוסקי',
                 startDate: '2026-04-20', dueDate: '2026-05-15',
-                priority: 'high', status: 'not-started', progress: 0,
+                priority: 'high', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't7', type: 'FS' }, { taskId: 't8', type: 'FS' }],
                 notes: 'דורש השלמת ניתוח כלכלי ומשפטי', order: 3,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -655,7 +666,7 @@ class Store {
                 description: 'חלוקה לקבוצות גיל: מעל 55, מתחת ל-55. תיקוף אקטוארי',
                 department: 'actuarial', assignee: '',
                 startDate: '2026-04-01', dueDate: '2026-05-15',
-                priority: 'critical', status: 'not-started', progress: 0,
+                priority: 'critical', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't2', type: 'FS' }],
                 notes: '', order: 0,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -666,7 +677,7 @@ class Store {
                 description: 'דרישות רישיון מבטח, דרישות הון, ממשל תאגידי',
                 department: 'legal', assignee: '',
                 startDate: '2026-05-01', dueDate: '2026-06-30',
-                priority: 'high', status: 'not-started', progress: 0,
+                priority: 'high', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't9', type: 'FS' }],
                 notes: 'תלוי בהכרעת חלופה', order: 1,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -677,7 +688,7 @@ class Store {
                 description: 'שתי חלופות: העברה יזומה לפי גיל חתך, או סגירה מלאה ובחירה חופשית',
                 department: 'product', assignee: '',
                 startDate: '2026-05-15', dueDate: '2026-07-15',
-                priority: 'critical', status: 'not-started', progress: 0,
+                priority: 'critical', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't10', type: 'FS' }, { taskId: 't11', type: 'SS' }],
                 notes: '', order: 2,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -688,7 +699,7 @@ class Store {
                 description: 'ללא הפליה, כללי זכאות נוקשים, דמי ביטוח שווים לפי גיל, מנגנון איזון',
                 department: 'product', assignee: '',
                 startDate: '2026-06-01', dueDate: '2026-08-01',
-                priority: 'high', status: 'not-started', progress: 0,
+                priority: 'high', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't10', type: 'FS' }],
                 notes: '', order: 3,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -699,7 +710,7 @@ class Store {
                 description: 'כתיבת תנאי מכרז, קריטריונים, לוח זמנים',
                 department: 'legal', assignee: '',
                 startDate: '2026-07-01', dueDate: '2026-09-01',
-                priority: 'medium', status: 'not-started', progress: 0,
+                priority: 'medium', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't11', type: 'FS' }, { taskId: 't12', type: 'FS' }],
                 notes: '', order: 4,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -712,7 +723,7 @@ class Store {
                 description: 'ביטוח פרט או קופת גמל - השלכות רגולטוריות ומיסויות',
                 department: 'product', assignee: 'אבי לוסקי',
                 startDate: '2026-04-15', dueDate: '2026-05-30',
-                priority: 'critical', status: 'not-started', progress: 0,
+                priority: 'critical', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't9', type: 'FS' }],
                 notes: 'הכרעה מרכזית שמשפיעה על כל המשך הפיתוח', order: 0,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -723,7 +734,7 @@ class Store {
                 description: 'הפקדות חודשיות, מסלולי השקעה, יעד צבירה, דמי ניהול',
                 department: 'product', assignee: '',
                 startDate: '2026-05-15', dueDate: '2026-07-15',
-                priority: 'high', status: 'not-started', progress: 0,
+                priority: 'high', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't15', type: 'FS' }],
                 notes: '', order: 1,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -734,7 +745,7 @@ class Store {
                 description: 'פטור ממס במעבר מחיסכון לביטוח, סיווג מיסויי',
                 department: 'legal', assignee: '',
                 startDate: '2026-05-15', dueDate: '2026-07-30',
-                priority: 'high', status: 'not-started', progress: 0,
+                priority: 'high', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't15', type: 'FS' }],
                 notes: 'מצריך עבודה מול רשות המיסים', order: 2,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -745,7 +756,7 @@ class Store {
                 description: 'מנגנון אוטומטי להתאמת פרמיות ותגמולים',
                 department: 'actuarial', assignee: '',
                 startDate: '2026-06-01', dueDate: '2026-08-15',
-                priority: 'critical', status: 'not-started', progress: 0,
+                priority: 'critical', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't16', type: 'SS' }],
                 notes: '', order: 3,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -756,7 +767,7 @@ class Store {
                 description: 'מקדמי המרה מחיסכון לביטוח לפי גיל, מין, שנת לידה',
                 department: 'actuarial', assignee: '',
                 startDate: '2026-06-15', dueDate: '2026-08-30',
-                priority: 'high', status: 'not-started', progress: 0,
+                priority: 'high', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't18', type: 'SS' }, { taskId: 't16', type: 'FS' }],
                 notes: '', order: 4,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -780,7 +791,7 @@ class Store {
                 description: 'חישוב עלות חודשית למבוטח לפי גיל ומצב סוציו-אקונומי',
                 department: 'actuarial', assignee: '',
                 startDate: '2026-04-01', dueDate: '2026-05-30',
-                priority: 'high', status: 'not-started', progress: 0,
+                priority: 'high', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't20', type: 'SS' }],
                 notes: '', order: 1,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -791,7 +802,7 @@ class Store {
                 description: 'גובה הכרית, אופן תפעול, תנאי הפעלה',
                 department: 'actuarial', assignee: '',
                 startDate: '2026-05-01', dueDate: '2026-07-01',
-                priority: 'high', status: 'not-started', progress: 0,
+                priority: 'high', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't20', type: 'FS' }],
                 notes: 'דורש גם אישור משפטי', order: 2,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -802,7 +813,7 @@ class Store {
                 description: 'מודל אקטוארי מקיף: תזרים מזומנים, תרחישים, רגישויות',
                 department: 'actuarial', assignee: '',
                 startDate: '2026-05-15', dueDate: '2026-08-15',
-                priority: 'critical', status: 'not-started', progress: 0,
+                priority: 'critical', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't20', type: 'FS' }, { taskId: 't21', type: 'FS' }],
                 notes: '', order: 3,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -815,7 +826,7 @@ class Store {
                 description: 'עדכון הטיוטה בהתאם להכרעות המוצר והניתוח הפיננסי',
                 department: 'legal', assignee: '',
                 startDate: '2026-05-01', dueDate: '2026-06-30',
-                priority: 'critical', status: 'not-started', progress: 0,
+                priority: 'critical', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't9', type: 'FS' }, { taskId: 't20', type: 'FS' }],
                 notes: '', order: 0,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -826,7 +837,7 @@ class Store {
                 description: 'עדכון חוזר 2024-32 בהתאם למודל הסופי',
                 department: 'legal', assignee: '',
                 startDate: '2026-06-01', dueDate: '2026-08-01',
-                priority: 'high', status: 'not-started', progress: 0,
+                priority: 'high', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't15', type: 'FS' }, { taskId: 't16', type: 'FS' }],
                 notes: '', order: 1,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -837,7 +848,7 @@ class Store {
                 description: 'מסמך משפטי להסדרת הקבוצה הסגורה של מבוטחים קיימים',
                 department: 'legal', assignee: '',
                 startDate: '2026-06-15', dueDate: '2026-09-15',
-                priority: 'high', status: 'not-started', progress: 0,
+                priority: 'high', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't10', type: 'FS' }, { taskId: 't13', type: 'FS' }],
                 notes: '', order: 2,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -848,7 +859,7 @@ class Store {
                 description: 'בדיקת סעיף 68 לחוק הפיקוח, תנאים למינוי',
                 department: 'legal', assignee: '',
                 startDate: '2026-05-15', dueDate: '2026-07-15',
-                priority: 'medium', status: 'not-started', progress: 0,
+                priority: 'medium', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't24', type: 'SS' }],
                 notes: '', order: 3,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -861,7 +872,7 @@ class Store {
                 description: 'גרסה ציבורית של מסמך הרפורמה, נגישה ומשכנעת',
                 department: 'product', assignee: '',
                 startDate: '2026-07-01', dueDate: '2026-08-15',
-                priority: 'high', status: 'not-started', progress: 0,
+                priority: 'high', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't9', type: 'FS' }, { taskId: 't23', type: 'FS' }],
                 notes: '', order: 0,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -872,7 +883,7 @@ class Store {
                 description: 'פרסום רשמי של הטיוטה לתגובות ציבוריות',
                 department: 'legal', assignee: '',
                 startDate: '2026-08-15', dueDate: '2026-10-15',
-                priority: 'medium', status: 'not-started', progress: 0,
+                priority: 'medium', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 't30', type: 'FS' }, { taskId: 't24', type: 'FS' }],
                 notes: '', order: 1,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -905,7 +916,7 @@ class Store {
                 description: 'ביטוח סיעודי פרט, כמיליון מבוטחים',
                 department: 'product', assignee: '',
                 startDate: '2026-03-12', dueDate: '2026-03-20',
-                priority: 'medium', status: 'not-started', progress: 0,
+                priority: 'medium', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 'st1_2', type: 'SS' }],
                 notes: '', order: 2,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
@@ -918,7 +929,7 @@ class Store {
                 description: 'מבוטחים מתחת לגיל מסוים מועברים אוטומטית',
                 department: 'product', assignee: '',
                 startDate: '2026-05-15', dueDate: '2026-06-15',
-                priority: 'high', status: 'not-started', progress: 0,
+                priority: 'high', status: 'waiting', progress: 0,
                 dependencies: [], notes: '', order: 0,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
             },
@@ -928,7 +939,7 @@ class Store {
                 description: 'כל המבוטחים בוחרים באופן חופשי',
                 department: 'product', assignee: '',
                 startDate: '2026-05-15', dueDate: '2026-06-15',
-                priority: 'high', status: 'not-started', progress: 0,
+                priority: 'high', status: 'waiting', progress: 0,
                 dependencies: [], notes: '', order: 1,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'
             },
@@ -938,7 +949,7 @@ class Store {
                 description: 'בדיקת התכנות משפטית, סיכוני תקיפה',
                 department: 'legal', assignee: '',
                 startDate: '2026-06-01', dueDate: '2026-07-01',
-                priority: 'critical', status: 'not-started', progress: 0,
+                priority: 'critical', status: 'waiting', progress: 0,
                 dependencies: [{ taskId: 'st12_1', type: 'FS' }, { taskId: 'st12_2', type: 'FS' }],
                 notes: '', order: 2,
                 createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-03-01T00:00:00.000Z'

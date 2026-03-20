@@ -858,13 +858,34 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
     box-shadow: 0 0 0 3px var(--primary-light);
 }
 
-.filter-checkbox {
+.filter-item {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 13px;
-    cursor: pointer;
+}
+
+.filter-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
     white-space: nowrap;
+}
+
+.btn-filter-reset {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    padding: 5px 14px;
+    font-size: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-filter-reset:hover {
+    background: var(--bg);
+    color: var(--text);
+    border-color: var(--text-secondary);
 }
 
 .filter-checkbox input {
@@ -2074,11 +2095,8 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
 }
 
 /* Status Badge Colors */
-.status-not-started { background: #f1f5f9; color: #475569; }
+.status-waiting { background: #f1f5f9; color: #475569; }
 .status-in-progress { background: #dbeafe; color: #1d4ed8; }
-.status-waiting { background: #fef3c7; color: #92400e; }
-.status-blocked { background: #fee2e2; color: #991b1b; }
-.status-review { background: #ede9fe; color: #6d28d9; }
 .status-completed { background: #d1fae5; color: #065f46; }
 
 /* Priority Badge Colors */
