@@ -268,21 +268,6 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
     transition: opacity var(--transition);
 }
 
-.btn-reset {
-    background: rgba(239, 68, 68, 0.08);
-    color: #ef4444;
-    border: none;
-    padding: 8px 16px;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font-size: 13px;
-    width: 100%;
-    transition: background var(--transition);
-}
-
-.btn-reset:hover {
-    background: rgba(239, 68, 68, 0.15);
-}
 
 /* ============ Main Content ============ */
 .main-content {

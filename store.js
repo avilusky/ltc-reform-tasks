@@ -169,16 +169,6 @@ class Store {
         });
     }
 
-    resetData() {
-        localStorage.removeItem(STORAGE_KEY);
-        this.seedData();
-        this.save();
-
-        if (this.useFirebase) {
-            this.uploadToFirebase().catch(e => console.error('Firebase reset failed:', e));
-        }
-    }
-
     // --- Event System ---
     subscribe(listener) {
         this.listeners.push(listener);

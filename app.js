@@ -20,7 +20,6 @@ class App {
         this.bindFilters();
         this.bindGanttControls();
         this.bindCalendarControls();
-        this.bindResetButton();
         this.bindMobileMenu();
 
         // Subscribe to store changes
@@ -987,15 +986,6 @@ class App {
         document.getElementById('calPrev').addEventListener('click', () => this.calendar.prevMonth()); // → = back in time
         document.getElementById('calNext').addEventListener('click', () => this.calendar.nextMonth()); // ← = forward in time
         document.getElementById('calToday').addEventListener('click', () => this.calendar.goToday());
-    }
-
-    // === Reset Button ===
-    bindResetButton() {
-        document.getElementById('btnResetData').addEventListener('click', () => {
-            this.showConfirm('האם אתה בטוח שברצונך לאפס את כל הנתונים? פעולה זו אינה ניתנת לביטול.', () => {
-                store.resetData();
-            });
-        });
     }
 
     // === Mobile Menu ===
