@@ -24,4 +24,18 @@ const COLLECTIONS = {
     tasks: 'tasks'
 };
 
+// Connection status indicator
+function updateSyncStatus(connected) {
+    const el = document.getElementById('sync-status');
+    if (el) {
+        el.textContent = connected ? '🟢 מחובר' : '🔴 לא מחובר';
+    }
+}
+
+// Listen to Firestore snapshot to detect connection
+db.collection(COLLECTIONS.tasks).limit(1).onSnapshot(
+    () => updateSyncStatus(true),
+    () => updateSyncStatus(false)
+);
+
 console.log('Firebase initialized successfully');
