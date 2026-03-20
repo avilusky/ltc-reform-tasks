@@ -54,12 +54,14 @@ class Store {
         this.listeners = [];
         this.useFirebase = typeof db !== 'undefined';
         this.firebaseReady = false;
+        this._notifyTimer = null;
+        this._seedChecked = false;
         this.load();
     }
 
     // --- Persistence ---
     load() {
-        // Always load from localStorage first (instant)
+        // Load from localStorage first (instant UI)
         try {
             const data = localStorage.getItem(STORAGE_KEY);
             if (data) {
@@ -75,106 +77,64 @@ class Store {
             this.seedData();
         }
 
-        // Then sync from Firebase if available
+        // Set up real-time listeners (serves as both initial load AND ongoing sync)
+        // onSnapshot fires once immediately with current data = 2 reads total
         if (this.useFirebase) {
-            this.initFirebaseSync();
-        }
-    }
-
-    async initFirebaseSync() {
-        try {
-            // Check if Firestore has data
-            const spSnapshot = await db.collection(COLLECTIONS.subProjects).limit(1).get();
-
-            if (spSnapshot.empty) {
-                // Firestore is empty - upload local data
-                console.log('Firestore empty, uploading local data...');
-                await this.uploadToFirebase();
-            } else {
-                // Firestore has data - load it
-                console.log('Loading data from Firestore...');
-                await this.loadFromFirebase();
-            }
-
-            this.firebaseReady = true;
-            console.log('Firebase sync ready');
-
-            // Set up real-time listeners
             this.setupRealtimeListeners();
-        } catch (e) {
-            console.error('Firebase sync failed, using localStorage:', e);
-            this.useFirebase = false;
         }
-    }
-
-    async loadFromFirebase() {
-        const [spSnapshot, tasksSnapshot] = await Promise.all([
-            db.collection(COLLECTIONS.subProjects).get(),
-            db.collection(COLLECTIONS.tasks).get()
-        ]);
-
-        this.subProjects = [];
-        spSnapshot.forEach(doc => {
-            this.subProjects.push({ ...doc.data(), _docId: doc.id });
-        });
-
-        this.tasks = [];
-        tasksSnapshot.forEach(doc => {
-            this.tasks.push({ ...doc.data(), _docId: doc.id });
-        });
-
-        // Save to localStorage as cache
-        this.saveLocal();
-        this.notify();
-    }
-
-    async uploadToFirebase() {
-        const batch = db.batch();
-
-        this.subProjects.forEach(sp => {
-            const docRef = db.collection(COLLECTIONS.subProjects).doc(sp.id);
-            const data = { ...sp };
-            delete data._docId;
-            batch.set(docRef, data);
-        });
-
-        this.tasks.forEach(task => {
-            const docRef = db.collection(COLLECTIONS.tasks).doc(task.id);
-            const data = { ...task };
-            delete data._docId;
-            batch.set(docRef, data);
-        });
-
-        await batch.commit();
-        console.log('Data uploaded to Firestore');
     }
 
     setupRealtimeListeners() {
-        // Listen for sub-project changes
+        // Listener for sub-projects - fires once on setup, then on every change
         db.collection(COLLECTIONS.subProjects).onSnapshot(snapshot => {
-            if (!this.firebaseReady) return;
-            this.subProjects = [];
-            snapshot.forEach(doc => {
-                this.subProjects.push({ ...doc.data(), _docId: doc.id });
-            });
+            // First callback: check if Firestore is empty and needs seeding
+            if (!this._seedChecked) {
+                this._seedChecked = true;
+                if (snapshot.empty) {
+                    console.log('Firestore empty, uploading local data...');
+                    this.uploadToFirebase();
+                    return; // uploadToFirebase will trigger another snapshot
+                }
+            }
+
+            this.subProjects = snapshot.docs.map(doc => doc.data());
             this.saveLocal();
-            this.notify();
+            this.debouncedNotify();
+
+            if (!this.firebaseReady) {
+                this.firebaseReady = true;
+                console.log('Firebase sync ready');
+            }
         }, err => {
             console.error('SubProjects listener error:', err);
         });
 
-        // Listen for task changes
+        // Listener for tasks
         db.collection(COLLECTIONS.tasks).onSnapshot(snapshot => {
-            if (!this.firebaseReady) return;
-            this.tasks = [];
-            snapshot.forEach(doc => {
-                this.tasks.push({ ...doc.data(), _docId: doc.id });
-            });
+            if (!this._seedChecked) return; // Wait for subProjects check first
+
+            this.tasks = snapshot.docs.map(doc => doc.data());
             this.saveLocal();
-            this.notify();
+            this.debouncedNotify();
         }, err => {
             console.error('Tasks listener error:', err);
         });
+    }
+
+    async uploadToFirebase() {
+        // Batch write - counts as N writes but done efficiently
+        const batch = db.batch();
+
+        this.subProjects.forEach(sp => {
+            batch.set(db.collection(COLLECTIONS.subProjects).doc(sp.id), sp);
+        });
+
+        this.tasks.forEach(task => {
+            batch.set(db.collection(COLLECTIONS.tasks).doc(task.id), task);
+        });
+
+        await batch.commit();
+        console.log('Data uploaded to Firestore');
     }
 
     saveLocal() {
@@ -193,24 +153,20 @@ class Store {
         this.notify();
     }
 
-    async saveToFirebase(collection, id, data) {
+    // Write single doc to Firestore
+    writeDoc(collection, id, data) {
         if (!this.useFirebase) return;
-        try {
-            const cleanData = { ...data };
-            delete cleanData._docId;
-            await db.collection(collection).doc(id).set(cleanData, { merge: true });
-        } catch (e) {
-            console.error('Failed to save to Firebase:', e);
-        }
+        db.collection(collection).doc(id).set(data).catch(e => {
+            console.error('Firestore write failed:', e);
+        });
     }
 
-    async deleteFromFirebase(collection, id) {
+    // Delete single doc from Firestore
+    removeDoc(collection, id) {
         if (!this.useFirebase) return;
-        try {
-            await db.collection(collection).doc(id).delete();
-        } catch (e) {
-            console.error('Failed to delete from Firebase:', e);
-        }
+        db.collection(collection).doc(id).delete().catch(e => {
+            console.error('Firestore delete failed:', e);
+        });
     }
 
     resetData() {
@@ -218,7 +174,6 @@ class Store {
         this.seedData();
         this.save();
 
-        // Also reset Firebase
         if (this.useFirebase) {
             this.uploadToFirebase().catch(e => console.error('Firebase reset failed:', e));
         }
@@ -234,6 +189,12 @@ class Store {
 
     notify() {
         this.listeners.forEach(l => l());
+    }
+
+    // Debounced notify - prevents double renders when Firebase listener fires right after local save
+    debouncedNotify() {
+        clearTimeout(this._notifyTimer);
+        this._notifyTimer = setTimeout(() => this.notify(), 300);
     }
 
     // --- ID Generation ---
@@ -268,7 +229,7 @@ class Store {
         };
         this.subProjects.push(sp);
         this.save();
-        this.saveToFirebase(COLLECTIONS.subProjects, sp.id, sp);
+        this.writeDoc(COLLECTIONS.subProjects, sp.id, sp);
         return sp;
     }
 
@@ -277,20 +238,18 @@ class Store {
         if (idx === -1) return null;
         this.subProjects[idx] = { ...this.subProjects[idx], ...data, updatedAt: new Date().toISOString() };
         this.save();
-        this.saveToFirebase(COLLECTIONS.subProjects, id, this.subProjects[idx]);
+        this.writeDoc(COLLECTIONS.subProjects, id, this.subProjects[idx]);
         return this.subProjects[idx];
     }
 
     deleteSubProject(id) {
-        this.subProjects = this.subProjects.filter(sp => sp.id !== id);
-        // Also delete all tasks in this sub-project
         const tasksToDelete = this.tasks.filter(t => t.subProjectId === id);
+        this.subProjects = this.subProjects.filter(sp => sp.id !== id);
         this.tasks = this.tasks.filter(t => t.subProjectId !== id);
         this.save();
 
-        // Delete from Firebase
-        this.deleteFromFirebase(COLLECTIONS.subProjects, id);
-        tasksToDelete.forEach(t => this.deleteFromFirebase(COLLECTIONS.tasks, t.id));
+        this.removeDoc(COLLECTIONS.subProjects, id);
+        tasksToDelete.forEach(t => this.removeDoc(COLLECTIONS.tasks, t.id));
     }
 
     getSubProjectProgress(spId) {
@@ -359,7 +318,7 @@ class Store {
         };
         this.tasks.push(task);
         this.save();
-        this.saveToFirebase(COLLECTIONS.tasks, task.id, task);
+        this.writeDoc(COLLECTIONS.tasks, task.id, task);
         return task;
     }
 
@@ -368,7 +327,7 @@ class Store {
         if (idx === -1) return null;
         this.tasks[idx] = { ...this.tasks[idx], ...data, updatedAt: new Date().toISOString() };
         this.save();
-        this.saveToFirebase(COLLECTIONS.tasks, id, this.tasks[idx]);
+        this.writeDoc(COLLECTIONS.tasks, id, this.tasks[idx]);
         return this.tasks[idx];
     }
 
@@ -384,7 +343,7 @@ class Store {
         });
         this.tasks = this.tasks.filter(t => t.id !== id);
         this.save();
-        this.deleteFromFirebase(COLLECTIONS.tasks, id);
+        this.removeDoc(COLLECTIONS.tasks, id);
     }
 
     // --- Dependency Helpers ---
