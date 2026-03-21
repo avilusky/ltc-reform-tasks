@@ -1244,31 +1244,31 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
 .calendar-header {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 8px;
     margin-bottom: 20px;
 }
 
 .calendar-header h2 {
-    font-size: 22px;
-    font-weight: 800;
-    min-width: 200px;
+    font-size: 20px;
+    font-weight: 700;
+    min-width: 160px;
     text-align: center;
-    letter-spacing: -0.3px;
 }
 
 .calendar-nav-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     border: 1px solid var(--border);
     background: var(--bg-card);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
-    color: var(--text-secondary);
-    transition: all var(--transition);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--primary);
+    transition: all 0.15s ease;
     box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 
@@ -1276,7 +1276,6 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
     background: var(--primary);
     color: #fff;
     border-color: var(--primary);
-    box-shadow: 0 2px 8px rgba(37,99,235,0.25);
 }
 
 .calendar-grid {
