@@ -69,7 +69,8 @@ class App {
             subprojects: 'פרויקטים',
             tasks: 'משימות',
             calendar: 'לוח שנה',
-            gantt: 'תרשים גאנט'
+            gantt: 'תרשים גאנט',
+            settings: 'בעלי עניין'
         };
         document.getElementById('pageTitle').textContent = titles[page] || '';
 
@@ -87,6 +88,7 @@ class App {
             case 'tasks': this.renderTasks(); break;
             case 'calendar': this.calendar.render(); break;
             case 'gantt': this.gantt.render(); break;
+            case 'settings': this.renderSettings(); break;
         }
     }
 
@@ -99,7 +101,6 @@ class App {
         document.getElementById('statInProgressTasks').textContent = stats.inProgressTasks;
         document.getElementById('statBlockedTasks').textContent = stats.blockedTasks;
         document.getElementById('statOverdueTasks').textContent = stats.overdueTasks;
-        document.getElementById('statTotalTasks').textContent = stats.totalTasks;
 
         this.renderSpProgress();
         this.renderUpcomingTasks();
@@ -414,9 +415,6 @@ class App {
         const statusDef = TASK_STATUSES[task.status];
         const isBlocked = store.isTaskBlocked(task.id);
         const subtasks = store.getSubTasks(task.id);
-        const hasDeps = task.dependencies && task.dependencies.length > 0;
-
-        const depIndicator = hasDeps ? '<span class="task-dep-indicator">🔗</span>' : '';
         const blockedIndicator = isBlocked ? '<span class="task-dep-indicator">🚫</span>' : '';
 
         let progressColor = '#94a3b8';
@@ -428,7 +426,7 @@ class App {
             <div class="task-row ${isSubtask ? 'subtask' : ''}" onclick="app.openTaskDetail('${task.id}')">
                 <div class="task-color-bar" style="background:${dept.color}"></div>
                 <div class="task-title-cell">
-                    <div class="task-title-text">${blockedIndicator}${depIndicator}${task.title}</div>
+                    <div class="task-title-text">${blockedIndicator}${task.title}</div>
                     ${!isSubtask && subtasks.length > 0 ? `<div class="task-subtask-count">${subtasks.length} תתי משימות</div>` : ''}
                 </div>
                 <div class="task-dept-cell dept-${task.department}">${dept.short}</div>
@@ -519,6 +517,12 @@ class App {
         document.getElementById('spForm').addEventListener('submit', (e) => this.handleSpSubmit(e));
         document.getElementById('spModalDelete').addEventListener('click', () => this.handleSpDelete());
 
+        // Settings
+        document.getElementById('btnAddStakeholder').addEventListener('click', () => this.addStakeholder());
+        document.getElementById('newStakeholderName').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.addStakeholder();
+        });
+
         // Detail modal
         document.getElementById('taskDetailClose').addEventListener('click', () => this.closeModal('taskDetailModal'));
 
@@ -533,10 +537,11 @@ class App {
             this.closeModal('confirmModal');
         });
 
-        // Close modals on overlay click
+        // Close modals on overlay click (except edit forms)
+        const editModals = ['taskModal', 'spModal'];
         document.querySelectorAll('.modal-overlay').forEach(overlay => {
             overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) {
+                if (e.target === overlay && !editModals.includes(overlay.id)) {
                     overlay.classList.remove('active');
                 }
             });
@@ -590,6 +595,7 @@ class App {
         this.editingDeps = [];
         this.renderDependencyList();
         this.populateDependencySelect();
+        this.populateStakeholderCheckboxes([]);
 
         this.openModal('taskModal');
     }
@@ -603,7 +609,6 @@ class App {
         document.getElementById('taskParentId').value = task.parentTaskId || '';
         document.getElementById('taskTitle').value = task.title;
         document.getElementById('taskDescription').value = task.description || '';
-        document.getElementById('taskAssignee').value = task.assignee || '';
         document.getElementById('taskDepartment').value = task.department || 'product';
         document.getElementById('taskPriority').value = task.priority || 'medium';
         document.getElementById('taskStartDate').value = task.startDate || '';
@@ -621,6 +626,7 @@ class App {
         this.editingDeps = task.dependencies ? [...task.dependencies] : [];
         this.renderDependencyList();
         this.populateDependencySelect(task.id);
+        this.populateStakeholderCheckboxes(task.stakeholderIds || []);
 
         this.openModal('taskModal');
     }
@@ -635,14 +641,14 @@ class App {
             subProjectId: document.getElementById('taskSubProject').value,
             parentTaskId: document.getElementById('taskParentId').value || null,
             department: document.getElementById('taskDepartment').value,
-            assignee: document.getElementById('taskAssignee').value.trim(),
             priority: document.getElementById('taskPriority').value,
             startDate: document.getElementById('taskStartDate').value || null,
             dueDate: document.getElementById('taskDueDate').value || null,
             status: document.getElementById('taskStatus').value,
             progress: parseInt(document.getElementById('taskProgress').value) || 0,
             notes: document.getElementById('taskNotes').value.trim(),
-            dependencies: this.editingDeps
+            dependencies: this.editingDeps,
+            stakeholderIds: this.getSelectedStakeholders()
         };
 
         if (!data.title || !data.subProjectId) return;
@@ -743,9 +749,9 @@ class App {
             const typeDef = DEPENDENCY_TYPES[dep.type];
             html += `
                 <div class="dep-item">
-                    <span class="dep-item-icon">🔗</span>
-                    <span class="dep-item-name">${task.title}</span>
                     <span class="dep-item-type">${typeDef.label}</span>
+                    <span class="dep-item-icon">←</span>
+                    <span class="dep-item-name">${task.title}</span>
                     <button type="button" class="dep-item-remove" onclick="app.removeDependencyFromForm(${idx})">×</button>
                 </div>
             `;
@@ -824,6 +830,125 @@ class App {
         });
     }
 
+    // === Stakeholder Multi-Select ===
+    populateStakeholderCheckboxes(selectedIds = []) {
+        const container = document.getElementById('stakeholdersOptions');
+        const trigger = document.getElementById('stakeholdersTrigger');
+        const stakeholders = store.getStakeholders();
+
+        container.innerHTML = stakeholders.map(sh => `
+            <label class="multi-select-option">
+                <input type="checkbox" value="${sh.id}" ${selectedIds.includes(sh.id) ? 'checked' : ''}>
+                <span>${sh.name}</span>
+            </label>
+        `).join('');
+
+        // Update trigger text
+        container.querySelectorAll('input').forEach(cb => {
+            cb.addEventListener('change', () => this.updateStakeholderTrigger());
+        });
+        this.updateStakeholderTrigger();
+
+        // Toggle dropdown
+        trigger.onclick = () => container.classList.toggle('open');
+
+        // Close on outside click
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#stakeholdersDropdown')) {
+                container.classList.remove('open');
+            }
+        });
+    }
+
+    updateStakeholderTrigger() {
+        const checked = document.querySelectorAll('#stakeholdersOptions input:checked');
+        const trigger = document.getElementById('stakeholdersTrigger');
+        if (checked.length === 0) {
+            trigger.innerHTML = '<span class="multi-select-placeholder">בחר בעלי עניין...</span>';
+        } else {
+            const names = [...checked].map(cb => cb.parentElement.querySelector('span').textContent);
+            trigger.innerHTML = names.map(n => `<span class="multi-select-tag">${n}</span>`).join('');
+        }
+    }
+
+    getSelectedStakeholders() {
+        const checked = document.querySelectorAll('#stakeholdersOptions input:checked');
+        return [...checked].map(cb => cb.value);
+    }
+
+    // === Stakeholders Page ===
+    renderSettings() {
+        const container = document.getElementById('stakeholdersList');
+        const stakeholders = store.getStakeholders();
+
+        if (stakeholders.length === 0) {
+            container.innerHTML = '<div class="empty-state"><div class="empty-state-text">אין בעלי עניין. הוסף את הראשון למעלה.</div></div>';
+            return;
+        }
+
+        const shColors = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899', '#6366f1'];
+        container.innerHTML = stakeholders.map((sh, idx) => {
+            const tasks = store.getTasksForStakeholder(sh.id);
+            const taskCount = tasks.length;
+            const color = shColors[idx % shColors.length];
+
+            let tasksHtml = '';
+            if (tasks.length > 0) {
+                tasksHtml = tasks.map(t => {
+                    const statusDef = TASK_STATUSES[t.status] || TASK_STATUSES.waiting;
+                    const sp = store.getSubProject(t.subProjectId);
+                    const spName = sp ? sp.icon + ' ' + sp.name : '';
+                    return `<div class="sh-task-item" onclick="event.stopPropagation(); app.openTaskDetail('${t.id}')">
+                        <span class="sh-task-status" style="color:${statusDef.color}">${statusDef.icon}</span>
+                        <span class="sh-task-title">${t.title}</span>
+                        <span class="sh-task-project">${spName}</span>
+                    </div>`;
+                }).join('');
+            } else {
+                tasksHtml = '<div class="sh-no-tasks">אין משימות משויכות</div>';
+            }
+
+            return `
+                <div class="stakeholder-card" id="sh-card-${sh.id}" style="--sh-color: ${color}">
+                    <div class="stakeholder-card-header" onclick="app.toggleStakeholderCard('${sh.id}')">
+                        <div class="sh-card-info">
+                            <div>
+                                <div class="sh-card-name">${sh.name}</div>
+                                <span class="sh-card-count">${taskCount} משימות משויכות</span>
+                            </div>
+                        </div>
+                        <div class="sh-card-actions">
+                            <button class="btn-icon-danger" onclick="event.stopPropagation(); app.deleteStakeholder('${sh.id}')" title="מחק">×</button>
+                            <span class="sh-card-arrow">◂</span>
+                        </div>
+                    </div>
+                    <div class="stakeholder-tasks-list">${tasksHtml}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    toggleStakeholderCard(shId) {
+        const card = document.getElementById('sh-card-' + shId);
+        if (card) card.classList.toggle('expanded');
+    }
+
+    addStakeholder() {
+        const input = document.getElementById('newStakeholderName');
+        const name = input.value.trim();
+        if (!name) return;
+        store.addStakeholder(name);
+        input.value = '';
+        this.renderSettings();
+    }
+
+    deleteStakeholder(id) {
+        this.showConfirm('האם למחוק בעל עניין זה?', () => {
+            store.deleteStakeholder(id);
+            this.renderSettings();
+        });
+    }
+
     // === Task Detail Modal ===
     openTaskDetail(taskId) {
         const task = store.getTask(taskId);
@@ -857,7 +982,6 @@ class App {
         html += '<div class="task-detail-section">';
         html += '<div class="task-detail-grid">';
         html += `<div class="task-detail-field"><label>פרויקט</label><span>${sp ? sp.icon + ' ' + sp.name : '-'}</span></div>`;
-        html += `<div class="task-detail-field"><label>אחראי</label><span>${task.assignee || 'לא שובץ'}</span></div>`;
         html += `<div class="task-detail-field"><label>תאריך התחלה</label><span>${task.startDate ? this.formatDate(task.startDate) : '-'}</span></div>`;
         html += `<div class="task-detail-field"><label>תאריך יעד</label><span>${task.dueDate ? this.formatDate(task.dueDate) : '-'}</span></div>`;
         html += `<div class="task-detail-field"><label>התקדמות</label><span>${task.progress}%</span></div>`;
@@ -874,6 +998,23 @@ class App {
         }
 
         html += '</div></div>';
+
+        // Stakeholders
+        if (task.stakeholderIds && task.stakeholderIds.length > 0) {
+            const allStakeholders = store.getStakeholders();
+            const taskStakeholders = task.stakeholderIds
+                .map(id => allStakeholders.find(sh => sh.id === id))
+                .filter(Boolean);
+            if (taskStakeholders.length > 0) {
+                html += '<div class="task-detail-section">';
+                html += '<h4 style="margin-bottom:8px;font-size:14px">בעלי עניין</h4>';
+                html += '<div class="task-detail-stakeholders">';
+                taskStakeholders.forEach(sh => {
+                    html += `<span class="stakeholder-tag">${sh.name}</span>`;
+                });
+                html += '</div></div>';
+            }
+        }
 
         // Progress bar
         html += '<div class="task-detail-section">';
@@ -903,7 +1044,7 @@ class App {
         // Dependencies
         if (deps.length > 0) {
             html += '<div class="task-detail-section">';
-            html += '<h4 style="margin-bottom:8px;font-size:14px">תלויות (חוסמות משימה זו)</h4>';
+            html += '<h4 style="margin-bottom:8px;font-size:14px">תלויה במשימות</h4>';
             html += '<ul class="task-detail-deps">';
             deps.forEach(dep => {
                 const depStatus = TASK_STATUSES[dep.task.status];

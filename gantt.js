@@ -125,7 +125,6 @@ class GanttChart {
                 const barRight = startOffset * config.pxPerDay;
 
                 const isBlocked = store.isTaskBlocked(task.id);
-                const depIcon = (task.dependencies && task.dependencies.length > 0) ? '<span class="dep-icon">🔗</span>' : '';
                 const blockedIcon = isBlocked ? '<span class="dep-icon">🚫</span>' : '';
 
                 // Store positions for dependency arrows
@@ -136,7 +135,7 @@ class GanttChart {
                 html += `<div class="gantt-row" onclick="app.openTaskDetail('${task.id}')">`;
                 html += `<div class="gantt-row-label">`;
                 html += `<span class="dept-dot" style="background:${dept.color}"></span>`;
-                html += `${blockedIcon}${depIcon}`;
+                html += `${blockedIcon}`;
                 html += `<span class="task-name">${task.title}</span>`;
                 html += `</div>`;
                 html += `<div class="gantt-timeline" style="width:${timelineWidth}px;direction:rtl;flex:none" data-task-id="${task.id}">`;

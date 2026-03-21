@@ -34,6 +34,10 @@
                 <span class="nav-icon">✅</span>
                 <span class="nav-text">משימות</span>
             </a>
+            <a class="nav-item" data-page="settings" href="#">
+                <span class="nav-icon">👥</span>
+                <span class="nav-text">בעלי עניין</span>
+            </a>
             <a class="nav-item" data-page="calendar" href="#">
                 <span class="nav-icon">📅</span>
                 <span class="nav-text">לוח שנה</span>
@@ -107,13 +111,6 @@
                     <div class="stat-info">
                         <div class="stat-value" id="statOverdueTasks">0</div>
                         <div class="stat-label">משימות באיחור</div>
-                    </div>
-                </div>
-                <div class="stat-card" style="--accent: #8b5cf6">
-                    <div class="stat-icon">📋</div>
-                    <div class="stat-info">
-                        <div class="stat-value" id="statTotalTasks">0</div>
-                        <div class="stat-label">סה"כ משימות</div>
                     </div>
                 </div>
             </div>
@@ -260,6 +257,16 @@
                 <span class="legend-item"><span class="legend-arrow">→</span> תלות</span>
             </div>
         </section>
+
+        <section class="page" id="page-settings">
+            <div class="page-actions">
+                <div class="settings-add-row">
+                    <input type="text" id="newStakeholderName" placeholder="הוסף בעל עניין חדש..." class="filter-select">
+                    <button class="btn btn-primary btn-sm" id="btnAddStakeholder">+ הוסף</button>
+                </div>
+            </div>
+            <div class="stakeholders-grid" id="stakeholdersList"></div>
+        </section>
     </main>
 
     <!-- ============ Task Modal ============ -->
@@ -298,22 +305,6 @@
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="taskAssignee">אחראי</label>
-                            <input type="text" id="taskAssignee">
-                        </div>
-                        <div class="form-group">
-                            <label for="taskPriority">עדיפות</label>
-                            <select id="taskPriority">
-                                <option value="critical">קריטי</option>
-                                <option value="high">גבוה</option>
-                                <option value="medium" selected>בינוני</option>
-                                <option value="low">נמוך</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
                             <label for="taskStartDate">תאריך התחלה</label>
                             <input type="date" id="taskStartDate">
                         </div>
@@ -325,6 +316,15 @@
 
                     <div class="form-row">
                         <div class="form-group">
+                            <label for="taskPriority">עדיפות</label>
+                            <select id="taskPriority">
+                                <option value="critical">קריטי</option>
+                                <option value="high">גבוה</option>
+                                <option value="medium" selected>בינוני</option>
+                                <option value="low">נמוך</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
                             <label for="taskStatus">סטטוס</label>
                             <select id="taskStatus">
                                 <option value="waiting">ממתין</option>
@@ -332,7 +332,22 @@
                                 <option value="completed">הושלם</option>
                             </select>
                         </div>
-                        <div class="form-group">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group full">
+                            <label>בעלי עניין</label>
+                            <div class="multi-select-dropdown" id="stakeholdersDropdown">
+                                <div class="multi-select-trigger" id="stakeholdersTrigger">
+                                    <span class="multi-select-placeholder">בחר בעלי עניין...</span>
+                                </div>
+                                <div class="multi-select-options" id="stakeholdersOptions"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group full">
                             <label for="taskProgress">התקדמות (%)</label>
                             <div class="progress-input-row">
                                 <input type="range" id="taskProgress" min="0" max="100" step="5" value="0">
@@ -350,17 +365,17 @@
 
                     <div class="form-row">
                         <div class="form-group full">
-                            <label>תלויות (משימות חוסמות)</label>
+                            <label>תלויה במשימות</label>
                             <div class="dependencies-section">
                                 <div class="dependencies-list" id="dependenciesList"></div>
                                 <div class="add-dependency-row">
+                                    <select id="depTypeSelect" class="filter-select dep-type-select">
+                                        <option value="FS">מתחילה אחרי סיום</option>
+                                        <option value="SS">מתחילות ביחד</option>
+                                        <option value="FF">מסתיימות ביחד</option>
+                                    </select>
                                     <select id="depTaskSelect" class="filter-select">
                                         <option value="">בחר משימה...</option>
-                                    </select>
-                                    <select id="depTypeSelect" class="filter-select dep-type-select">
-                                        <option value="FS">סיום-התחלה</option>
-                                        <option value="SS">התחלה-התחלה</option>
-                                        <option value="FF">סיום-סיום</option>
                                     </select>
                                     <button type="button" class="btn btn-sm btn-secondary" id="btnAddDep">+ הוסף</button>
                                 </div>
@@ -449,18 +464,35 @@
                         <div class="form-group">
                             <label for="spIcon">אייקון</label>
                             <select id="spIcon">
-                                <option value="📁">📁</option>
-                                <option value="🔍">🔍</option>
-                                <option value="⚖️">⚖️</option>
-                                <option value="🔄">🔄</option>
-                                <option value="🆕">🆕</option>
-                                <option value="📊">📊</option>
-                                <option value="📜">📜</option>
-                                <option value="📅">📅</option>
-                                <option value="📢">📢</option>
-                                <option value="🏥">🏥</option>
-                                <option value="💰">💰</option>
-                                <option value="📋">📋</option>
+                                <option value="📁">📁 תיקייה</option>
+                                <option value="🔍">🔍 חיפוש</option>
+                                <option value="⚖️">⚖️ משפט</option>
+                                <option value="🔄">🔄 סנכרון</option>
+                                <option value="🆕">🆕 חדש</option>
+                                <option value="📊">📊 גרפים</option>
+                                <option value="📜">📜 מסמך</option>
+                                <option value="📅">📅 לוח שנה</option>
+                                <option value="📢">📢 הודעה</option>
+                                <option value="🏥">🏥 בריאות</option>
+                                <option value="💰">💰 כספים</option>
+                                <option value="📋">📋 רשימה</option>
+                                <option value="🎯">🎯 מטרה</option>
+                                <option value="⚙️">⚙️ הגדרות</option>
+                                <option value="🛡️">🛡️ ביטוח</option>
+                                <option value="👥">👥 צוות</option>
+                                <option value="📝">📝 עריכה</option>
+                                <option value="🧮">🧮 חישוב</option>
+                                <option value="📎">📎 קובץ</option>
+                                <option value="🗂️">🗂️ ארכיון</option>
+                                <option value="✅">✅ אישור</option>
+                                <option value="🚀">🚀 השקה</option>
+                                <option value="💡">💡 רעיון</option>
+                                <option value="🔒">🔒 אבטחה</option>
+                                <option value="📞">📞 תקשורת</option>
+                                <option value="🏛️">🏛️ רגולציה</option>
+                                <option value="📈">📈 צמיחה</option>
+                                <option value="🏠">🏠 בית</option>
+                                <option value="⏰">⏰ זמן</option>
                             </select>
                         </div>
                     </div>

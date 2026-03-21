@@ -70,7 +70,7 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
 /* ============ Sidebar ============ */
 .sidebar {
     width: var(--sidebar-width);
-    min-height: 100vh;
+    height: 100vh;
     background: linear-gradient(195deg, #ffffff 0%, #fafbfc 40%, #f8f9fb 70%, #fafafa 100%);
     color: var(--text-sidebar);
     display: flex;
@@ -82,7 +82,14 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
     transition: width var(--transition);
     border-left: 1px solid rgba(0, 0, 0, 0.06);
     box-shadow: -4px 0 24px rgba(0, 0, 0, 0.04);
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.sidebar::-webkit-scrollbar {
+    display: none;
 }
 
 .sidebar.collapsed {
@@ -2279,4 +2286,250 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
         font-size: 9px;
         padding: 1px 4px;
     }
+}
+
+/* ============ Stakeholders Page ============ */
+.settings-add-row {
+    display: flex;
+    gap: 8px;
+}
+
+.settings-add-row input {
+    min-width: 220px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 14px;
+    background: var(--bg-card);
+    color: var(--text);
+}
+
+.stakeholders-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    align-items: start;
+}
+
+.stakeholder-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-right: 4px solid var(--sh-color, var(--primary));
+    border-radius: var(--radius-xl);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    overflow: hidden;
+}
+
+.stakeholder-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+.stakeholder-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    cursor: pointer;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.04), rgba(139, 92, 246, 0.04));
+}
+
+.sh-card-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sh-card-icon {
+    display: none;
+}
+
+.sh-card-name {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.sh-card-count {
+    font-size: 11px;
+    color: var(--text-secondary);
+    background: var(--bg);
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.sh-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.sh-card-arrow {
+    font-size: 14px;
+    color: var(--text-secondary);
+    transition: transform 0.2s ease;
+    margin-right: 4px;
+}
+
+.stakeholder-card.expanded .sh-card-arrow {
+    transform: rotate(-90deg);
+}
+
+.stakeholder-tasks-list {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding: 6px 0;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.stakeholder-card.expanded .stakeholder-tasks-list {
+    display: block;
+}
+
+.sh-task-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 20px;
+    cursor: pointer;
+    transition: background 0.1s ease;
+}
+
+.sh-task-item:hover {
+    background: var(--bg);
+}
+
+.sh-task-status {
+    font-size: 14px;
+    min-width: 18px;
+    text-align: center;
+}
+
+.sh-task-title {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.sh-task-project {
+    font-size: 11px;
+    color: var(--text-secondary);
+    background: var(--bg);
+    padding: 2px 8px;
+    border-radius: 8px;
+}
+
+.sh-no-tasks {
+    padding: 16px 20px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.btn-icon-danger {
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+}
+
+.btn-icon-danger:hover {
+    color: #ef4444;
+    background: #fee2e2;
+}
+
+/* ============ Multi-Select Dropdown ============ */
+.multi-select-dropdown {
+    position: relative;
+}
+
+.multi-select-trigger {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 7px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    cursor: pointer;
+    min-height: 36px;
+    align-items: center;
+    transition: border 0.15s ease;
+}
+
+.multi-select-trigger:hover {
+    border-color: var(--primary);
+}
+
+.multi-select-placeholder {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.multi-select-tag {
+    background: var(--primary-light);
+    color: var(--primary);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.multi-select-options {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    z-index: 10;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 4px;
+}
+
+.multi-select-options.open {
+    display: block;
+}
+
+.multi-select-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.1s ease;
+}
+
+.multi-select-option:hover {
+    background: var(--bg);
+}
+
+.multi-select-option input[type="checkbox"] {
+    accent-color: var(--primary);
+}
+
+/* ============ Stakeholder Tags ============ */
+.task-detail-stakeholders {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.stakeholder-tag {
+    background: #ede9fe;
+    color: #6d28d9;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
 }

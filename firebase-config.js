@@ -21,7 +21,8 @@ const db = firebase.firestore();
 // Firestore collections
 const COLLECTIONS = {
     subProjects: 'subProjects',
-    tasks: 'tasks'
+    tasks: 'tasks',
+    stakeholders: 'stakeholders'
 };
 
 // Connection status indicator (called from store.js listeners)

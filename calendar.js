@@ -75,7 +75,7 @@ class CalendarView {
             for (let col = 0; col < 7; col++) {
                 const cellIndex = row * 7 + col;
 
-                let dayNum, dateStr, isOtherMonth = false, isToday = false, isShabbat = col === 6;
+                let dayNum, dateStr, isOtherMonth = false, isToday = false, isShabbat = col === 5 || col === 6;
 
                 if (cellIndex < startDay) {
                     // Previous month

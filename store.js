@@ -41,10 +41,9 @@ const PRIORITIES = {
 };
 
 const DEPENDENCY_TYPES = {
-    'FS': { label: 'סיום-התחלה', desc: 'המשימה יכולה להתחיל רק אחרי שהקודמת מסתיימת' },
-    'SS': { label: 'התחלה-התחלה', desc: 'המשימה מתחילה כשהקודמת מתחילה' },
-    'FF': { label: 'סיום-סיום', desc: 'המשימה מסתיימת כשהקודמת מסתיימת' },
-    'SF': { label: 'התחלה-סיום', desc: 'המשימה מסתיימת כשהקודמת מתחילה' }
+    'FS': { label: 'מתחילה אחרי סיום', desc: 'המשימה מתחילה רק אחרי שהתלויה מסתיימת' },
+    'SS': { label: 'מתחילות ביחד', desc: 'המשימה מתחילה רק כשהתלויה מתחילה' },
+    'FF': { label: 'מסתיימות ביחד', desc: 'המשימה מסתיימת רק כשהתלויה מסתיימת' }
 };
 
 // ============================================
@@ -55,6 +54,7 @@ class Store {
     constructor() {
         this.subProjects = [];
         this.tasks = [];
+        this.stakeholders = [];
         this.listeners = [];
         this.useFirebase = typeof db !== 'undefined';
         this.firebaseReady = false;
@@ -72,6 +72,11 @@ class Store {
                 const parsed = JSON.parse(data);
                 this.subProjects = parsed.subProjects || [];
                 this.tasks = (parsed.tasks || []).map(t => this.migrateStatus(t));
+                this.stakeholders = parsed.stakeholders || [];
+                // Seed stakeholders if missing
+                if (this.stakeholders.length === 0) {
+                    this.seedStakeholders();
+                }
             } else {
                 this.seedData();
                 this.saveLocal();
@@ -126,6 +131,27 @@ class Store {
             console.error('Tasks listener error:', err);
             updateSyncStatus(false);
         });
+
+        // Listener for stakeholders
+        db.collection(COLLECTIONS.stakeholders).onSnapshot(snapshot => {
+            if (!this._seedChecked) return;
+            if (snapshot.empty && this.stakeholders.length === 0) {
+                this.seedStakeholders();
+                this.saveLocal();
+                this.stakeholders.forEach(sh => {
+                    this.writeDoc(COLLECTIONS.stakeholders, sh.id, sh);
+                });
+                this.debouncedNotify();
+                return;
+            }
+            if (!snapshot.empty) {
+                this.stakeholders = snapshot.docs.map(doc => doc.data());
+            }
+            this.saveLocal();
+            this.debouncedNotify();
+        }, err => {
+            console.error('Stakeholders listener error:', err);
+        });
     }
 
     async uploadToFirebase() {
@@ -140,6 +166,10 @@ class Store {
             batch.set(db.collection(COLLECTIONS.tasks).doc(task.id), task);
         });
 
+        this.stakeholders.forEach(sh => {
+            batch.set(db.collection(COLLECTIONS.stakeholders).doc(sh.id), sh);
+        });
+
         await batch.commit();
         console.log('Data uploaded to Firestore');
     }
@@ -148,7 +178,8 @@ class Store {
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify({
                 subProjects: this.subProjects,
-                tasks: this.tasks
+                tasks: this.tasks,
+                stakeholders: this.stakeholders
             }));
         } catch (e) {
             console.error('Failed to save to localStorage:', e);
@@ -315,6 +346,7 @@ class Store {
             status: data.status || 'waiting',
             progress: data.progress || 0,
             dependencies: data.dependencies || [],
+            stakeholderIds: data.stakeholderIds || [],
             notes: data.notes || '',
             order: data.order ?? this.tasks.filter(t => t.subProjectId === data.subProjectId && t.parentTaskId === (data.parentTaskId || null)).length,
             createdAt: new Date().toISOString(),
@@ -348,6 +380,39 @@ class Store {
         this.tasks = this.tasks.filter(t => t.id !== id);
         this.save();
         this.removeDoc(COLLECTIONS.tasks, id);
+    }
+
+    // --- Stakeholders ---
+    getStakeholders() {
+        return [...this.stakeholders];
+    }
+
+    addStakeholder(name) {
+        const sh = {
+            id: this.generateId(),
+            name,
+            createdAt: new Date().toISOString()
+        };
+        this.stakeholders.push(sh);
+        this.save();
+        this.writeDoc(COLLECTIONS.stakeholders, sh.id, sh);
+        return sh;
+    }
+
+    deleteStakeholder(id) {
+        this.stakeholders = this.stakeholders.filter(sh => sh.id !== id);
+        // Remove from tasks
+        this.tasks.forEach(t => {
+            if (t.stakeholderIds) {
+                t.stakeholderIds = t.stakeholderIds.filter(sid => sid !== id);
+            }
+        });
+        this.save();
+        this.removeDoc(COLLECTIONS.stakeholders, id);
+    }
+
+    getTasksForStakeholder(stakeholderId) {
+        return this.tasks.filter(t => t.stakeholderIds && t.stakeholderIds.includes(stakeholderId));
     }
 
     // --- Dependency Helpers ---
@@ -444,6 +509,17 @@ class Store {
             due.setHours(0, 0, 0, 0);
             return due.getTime() === d.getTime();
         });
+    }
+
+    seedStakeholders() {
+        this.stakeholders = [
+            { id: 'sh1', name: 'אגף תקציבים', createdAt: '2026-03-01T00:00:00.000Z' },
+            { id: 'sh2', name: 'משרד הבריאות', createdAt: '2026-03-01T00:00:00.000Z' },
+            { id: 'sh3', name: 'קופות חולים', createdAt: '2026-03-01T00:00:00.000Z' },
+            { id: 'sh4', name: 'ביטוח לאומי', createdAt: '2026-03-01T00:00:00.000Z' },
+            { id: 'sh5', name: 'משרד המשפטים', createdAt: '2026-03-01T00:00:00.000Z' },
+            { id: 'sh6', name: 'רשות המסים', createdAt: '2026-03-01T00:00:00.000Z' }
+        ];
     }
 
     // --- Seed Data ---
@@ -556,6 +632,9 @@ class Store {
                 updatedAt: '2026-03-01T00:00:00.000Z'
             }
         ];
+
+        // Stakeholders
+        this.seedStakeholders();
 
         // Tasks with realistic dependencies
         this.tasks = [
