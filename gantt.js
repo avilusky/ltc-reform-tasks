@@ -60,9 +60,9 @@ class GanttChart {
         let minDate = new Date(Math.min(...allDates));
         let maxDate = new Date(Math.max(...allDates));
 
-        // Add padding
-        minDate.setDate(minDate.getDate() - 7);
-        maxDate.setDate(maxDate.getDate() + 14);
+        // Start from the 1st of the earliest month, end at end of latest month
+        minDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+        maxDate = new Date(maxDate.getFullYear(), maxDate.getMonth() + 1, 0);
 
         const config = this.zoomConfig[this.zoom];
         const totalDays = Math.ceil((maxDate - minDate) / (1000 * 60 * 60 * 24));
@@ -70,7 +70,7 @@ class GanttChart {
 
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        const todayOffset = Math.ceil((today - minDate) / (1000 * 60 * 60 * 24));
+        const todayOffset = this.getDayOffset(minDate, today);
 
         // Group tasks by sub-project
         const grouped = {};
@@ -91,6 +91,17 @@ class GanttChart {
         html += '</div>';
         html += '</div>';
 
+        // Build month grid lines (for monthly view)
+        let monthGridHtml = '';
+        if (config.labelFormat === 'month') {
+            let mDate = new Date(minDate.getFullYear(), minDate.getMonth() + 1, 1);
+            while (mDate < maxDate) {
+                const off = this.getDayOffset(minDate, mDate);
+                monthGridHtml += `<div class="gantt-month-divider" style="right:${off * config.pxPerDay}px"></div>`;
+                mDate.setMonth(mDate.getMonth() + 1);
+            }
+        }
+
         // Data rows
         let rowIndex = 0;
         const rowPositions = {};
@@ -107,6 +118,7 @@ class GanttChart {
             html += `<div class="gantt-row sp-row" onclick="app.navigateToSubProject('${sp.id}')">`;
             html += `<div class="gantt-row-label"><span style="font-size:16px">${sp.icon}</span> <span class="task-name">${sp.name}</span></div>`;
             html += `<div class="gantt-timeline" style="width:${timelineWidth}px;direction:rtl;flex:none">`;
+            html += monthGridHtml;
             html += `<div class="gantt-bar sp-bar" style="right:${spRight}px; width:${spWidth}px; background:${sp.color}">${sp.name}</div>`;
             html += '</div></div>';
             rowIndex++;
@@ -139,6 +151,7 @@ class GanttChart {
                 html += `<span class="task-name">${task.title}</span>`;
                 html += `</div>`;
                 html += `<div class="gantt-timeline" style="width:${timelineWidth}px;direction:rtl;flex:none" data-task-id="${task.id}">`;
+                html += monthGridHtml;
 
                 // Task bar
                 const progressWidth = task.progress || 0;
@@ -151,7 +164,7 @@ class GanttChart {
 
                 // Today line
                 if (todayOffset >= 0 && todayOffset <= totalDays) {
-                    html += `<div class="gantt-today-line" style="right:${todayOffset * config.pxPerDay}px"></div>`;
+                    html += `<div class="gantt-today-line" style="right:${todayOffset * config.pxPerDay}px;width:${config.pxPerDay}px"></div>`;
                 }
 
                 html += '</div></div>';
@@ -213,7 +226,9 @@ class GanttChart {
     }
 
     getDayOffset(baseDate, date) {
-        return Math.ceil((date - baseDate) / (1000 * 60 * 60 * 24));
+        const base = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
+        const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        return Math.round((d - base) / (1000 * 60 * 60 * 24));
     }
 
     drawDependencyArrows(rowPositions, config, timelineWidth, totalRows) {

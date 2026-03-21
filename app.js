@@ -1181,6 +1181,7 @@ class App {
         const d = new Date(dateStr);
         return d.toLocaleDateString('he-IL', { day: 'numeric', month: 'short', year: 'numeric' });
     }
+
 }
 
 // Initialize app on DOM ready
