@@ -700,16 +700,14 @@ class App {
         const select = document.getElementById('depTaskSelect');
         select.innerHTML = '<option value="">בחר משימה...</option>';
 
-        const allTasks = store.getTasks({ rootOnly: true });
+        const rootTasks = store.getTasks({ rootOnly: true });
         const subProjects = store.getSubProjects();
         const spMap = {};
         subProjects.forEach(sp => spMap[sp.id] = sp);
 
         // Group by sub-project
         const grouped = {};
-        allTasks.forEach(t => {
-            if (t.id === excludeTaskId) return;
-            if (this.editingDeps.some(d => d.taskId === t.id)) return;
+        rootTasks.forEach(t => {
             if (!grouped[t.subProjectId]) grouped[t.subProjectId] = [];
             grouped[t.subProjectId].push(t);
         });
@@ -720,10 +718,23 @@ class App {
             const group = document.createElement('optgroup');
             group.label = `${sp.icon} ${sp.name}`;
             tasks.forEach(t => {
-                const opt = document.createElement('option');
-                opt.value = t.id;
-                opt.textContent = t.title;
-                group.appendChild(opt);
+                // Add root task
+                if (t.id !== excludeTaskId && !this.editingDeps.some(d => d.taskId === t.id)) {
+                    const opt = document.createElement('option');
+                    opt.value = t.id;
+                    opt.textContent = t.title;
+                    group.appendChild(opt);
+                }
+                // Add subtasks
+                const subs = store.getSubTasks(t.id);
+                subs.forEach(sub => {
+                    if (sub.id !== excludeTaskId && !this.editingDeps.some(d => d.taskId === sub.id)) {
+                        const opt = document.createElement('option');
+                        opt.value = sub.id;
+                        opt.textContent = `  ↲ ${sub.title}`;
+                        group.appendChild(opt);
+                    }
+                });
             });
             select.appendChild(group);
         });
