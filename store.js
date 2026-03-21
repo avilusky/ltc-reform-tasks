@@ -60,6 +60,8 @@ class Store {
         this.firebaseReady = false;
         this._notifyTimer = null;
         this._seedChecked = false;
+        this._localWrite = false; // Flag to skip onSnapshot after our own writes
+        this._initialLoad = { subProjects: true, tasks: true, stakeholders: true };
         this.load();
     }
 
@@ -94,7 +96,7 @@ class Store {
     }
 
     setupRealtimeListeners() {
-        // Listener for sub-projects - fires once on setup, then on every change
+        // === SubProjects listener ===
         db.collection(COLLECTIONS.subProjects).onSnapshot(snapshot => {
             // First callback: check if Firestore is empty and needs seeding
             if (!this._seedChecked) {
@@ -102,11 +104,22 @@ class Store {
                 if (snapshot.empty) {
                     console.log('Firestore empty, uploading local data...');
                     this.uploadToFirebase();
-                    return; // uploadToFirebase will trigger another snapshot
+                    return;
                 }
             }
 
-            this.subProjects = snapshot.docs.map(doc => doc.data());
+            // Skip if this was triggered by our own write
+            if (this._localWrite) return;
+
+            if (this._initialLoad.subProjects) {
+                // First load: get all docs (unavoidable)
+                this._initialLoad.subProjects = false;
+                this.subProjects = snapshot.docs.map(doc => doc.data());
+            } else {
+                // Subsequent updates: only process changes (saves reads!)
+                this._applyChanges(snapshot, 'subProjects', 'id');
+            }
+
             this.saveLocal();
             this.debouncedNotify();
 
@@ -120,11 +133,18 @@ class Store {
             updateSyncStatus(false);
         });
 
-        // Listener for tasks
+        // === Tasks listener ===
         db.collection(COLLECTIONS.tasks).onSnapshot(snapshot => {
-            if (!this._seedChecked) return; // Wait for subProjects check first
+            if (!this._seedChecked) return;
+            if (this._localWrite) return;
 
-            this.tasks = snapshot.docs.map(doc => this.migrateStatus(doc.data()));
+            if (this._initialLoad.tasks) {
+                this._initialLoad.tasks = false;
+                this.tasks = snapshot.docs.map(doc => this.migrateStatus(doc.data()));
+            } else {
+                this._applyChanges(snapshot, 'tasks', 'id', true);
+            }
+
             this.saveLocal();
             this.debouncedNotify();
         }, err => {
@@ -132,9 +152,11 @@ class Store {
             updateSyncStatus(false);
         });
 
-        // Listener for stakeholders
+        // === Stakeholders listener ===
         db.collection(COLLECTIONS.stakeholders).onSnapshot(snapshot => {
             if (!this._seedChecked) return;
+            if (this._localWrite) return;
+
             if (snapshot.empty && this.stakeholders.length === 0) {
                 this.seedStakeholders();
                 this.saveLocal();
@@ -144,9 +166,16 @@ class Store {
                 this.debouncedNotify();
                 return;
             }
-            if (!snapshot.empty) {
-                this.stakeholders = snapshot.docs.map(doc => doc.data());
+
+            if (this._initialLoad.stakeholders) {
+                this._initialLoad.stakeholders = false;
+                if (!snapshot.empty) {
+                    this.stakeholders = snapshot.docs.map(doc => doc.data());
+                }
+            } else {
+                this._applyChanges(snapshot, 'stakeholders', 'id');
             }
+
             this.saveLocal();
             this.debouncedNotify();
         }, err => {
@@ -154,8 +183,29 @@ class Store {
         });
     }
 
+    // Apply only changed docs instead of re-reading entire collection
+    _applyChanges(snapshot, collectionName, idField, migrate = false) {
+        snapshot.docChanges().forEach(change => {
+            let data = change.doc.data();
+            if (migrate) data = this.migrateStatus(data);
+
+            if (change.type === 'added') {
+                // Only add if not already in local array
+                if (!this[collectionName].find(item => item[idField] === data[idField])) {
+                    this[collectionName].push(data);
+                }
+            } else if (change.type === 'modified') {
+                const idx = this[collectionName].findIndex(item => item[idField] === data[idField]);
+                if (idx !== -1) this[collectionName][idx] = data;
+            } else if (change.type === 'removed') {
+                this[collectionName] = this[collectionName].filter(item => item[idField] !== data[idField]);
+            }
+        });
+    }
+
     async uploadToFirebase() {
-        // Batch write - counts as N writes but done efficiently
+        // Batch write - single network call for all docs
+        this._localWrite = true;
         const batch = db.batch();
 
         this.subProjects.forEach(sp => {
@@ -171,6 +221,7 @@ class Store {
         });
 
         await batch.commit();
+        setTimeout(() => { this._localWrite = false; }, 500);
         console.log('Data uploaded to Firestore');
     }
 
@@ -198,10 +249,15 @@ class Store {
         this.notify();
     }
 
-    // Write single doc to Firestore
+    // Write single doc to Firestore (with local write flag to prevent re-read)
     writeDoc(collection, id, data) {
         if (!this.useFirebase) return;
-        db.collection(collection).doc(id).set(data).catch(e => {
+        this._localWrite = true;
+        db.collection(collection).doc(id).set(data).then(() => {
+            // Reset flag after a short delay to allow onSnapshot to fire and be ignored
+            setTimeout(() => { this._localWrite = false; }, 500);
+        }).catch(e => {
+            this._localWrite = false;
             console.error('Firestore write failed:', e);
         });
     }
@@ -209,7 +265,11 @@ class Store {
     // Delete single doc from Firestore
     removeDoc(collection, id) {
         if (!this.useFirebase) return;
-        db.collection(collection).doc(id).delete().catch(e => {
+        this._localWrite = true;
+        db.collection(collection).doc(id).delete().then(() => {
+            setTimeout(() => { this._localWrite = false; }, 500);
+        }).catch(e => {
+            this._localWrite = false;
             console.error('Firestore delete failed:', e);
         });
     }
@@ -283,8 +343,21 @@ class Store {
         this.tasks = this.tasks.filter(t => t.subProjectId !== id);
         this.save();
 
-        this.removeDoc(COLLECTIONS.subProjects, id);
-        tasksToDelete.forEach(t => this.removeDoc(COLLECTIONS.tasks, t.id));
+        // Batch delete from Firebase (1 sub-project + N tasks in single operation)
+        if (this.useFirebase) {
+            this._localWrite = true;
+            const batch = db.batch();
+            batch.delete(db.collection(COLLECTIONS.subProjects).doc(id));
+            tasksToDelete.forEach(t => {
+                batch.delete(db.collection(COLLECTIONS.tasks).doc(t.id));
+            });
+            batch.commit().then(() => {
+                setTimeout(() => { this._localWrite = false; }, 500);
+            }).catch(e => {
+                this._localWrite = false;
+                console.error('Batch delete failed:', e);
+            });
+        }
     }
 
     getSubProjectProgress(spId) {
@@ -368,18 +441,47 @@ class Store {
     }
 
     deleteTask(id) {
-        // Also delete all subtasks recursively
-        const subtasks = this.tasks.filter(t => t.parentTaskId === id);
-        subtasks.forEach(st => this.deleteTask(st.id));
-        // Remove dependencies pointing to this task
+        // Collect all IDs to delete (task + subtasks recursively)
+        const idsToDelete = [];
+        const collectIds = (taskId) => {
+            idsToDelete.push(taskId);
+            this.tasks.filter(t => t.parentTaskId === taskId).forEach(st => collectIds(st.id));
+        };
+        collectIds(id);
+
+        // Track tasks with updated dependencies (for batch write)
+        const updatedTasks = [];
         this.tasks.forEach(t => {
             if (t.dependencies) {
-                t.dependencies = t.dependencies.filter(d => d.taskId !== id);
+                const before = t.dependencies.length;
+                t.dependencies = t.dependencies.filter(d => !idsToDelete.includes(d.taskId));
+                if (t.dependencies.length !== before && !idsToDelete.includes(t.id)) {
+                    updatedTasks.push(t);
+                }
             }
         });
-        this.tasks = this.tasks.filter(t => t.id !== id);
+
+        // Remove all tasks locally
+        this.tasks = this.tasks.filter(t => !idsToDelete.includes(t.id));
         this.save();
-        this.removeDoc(COLLECTIONS.tasks, id);
+
+        // Single batch: delete tasks + update deps (one network call)
+        if (this.useFirebase) {
+            this._localWrite = true;
+            const batch = db.batch();
+            idsToDelete.forEach(taskId => {
+                batch.delete(db.collection(COLLECTIONS.tasks).doc(taskId));
+            });
+            updatedTasks.forEach(t => {
+                batch.set(db.collection(COLLECTIONS.tasks).doc(t.id), t);
+            });
+            batch.commit().then(() => {
+                setTimeout(() => { this._localWrite = false; }, 500);
+            }).catch(e => {
+                this._localWrite = false;
+                console.error('Batch delete failed:', e);
+            });
+        }
     }
 
     // --- Stakeholders ---

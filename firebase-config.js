@@ -15,8 +15,15 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-// Initialize Firestore
+// Initialize Firestore with offline persistence (reduces reads dramatically)
 const db = firebase.firestore();
+db.enablePersistence({ synchronizeTabs: true }).catch(err => {
+    if (err.code === 'failed-precondition') {
+        console.warn('Persistence failed: multiple tabs open');
+    } else if (err.code === 'unimplemented') {
+        console.warn('Persistence not available in this browser');
+    }
+});
 
 // Firestore collections
 const COLLECTIONS = {
