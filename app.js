@@ -180,7 +180,7 @@ class App {
         const now = new Date();
         now.setHours(0, 0, 0, 0);
 
-        let tasks = store.getTasks({ notCompleted: true, rootOnly: true });
+        let tasks = store.getTasks({ notCompleted: true });
         tasks = tasks.filter(t => t.dueDate);
 
         // Department filter
@@ -292,7 +292,6 @@ class App {
             const completed = tasks.filter(t => t.status === 'completed').length;
             const inProgress = tasks.filter(t => t.status === 'in-progress').length;
             const pct = store.getSubProjectProgress(sp.id);
-            const dept = DEPARTMENTS[sp.owner] || DEPARTMENTS.product;
             const statusDef = SUBPROJECT_STATUSES[sp.status];
             const dates = [];
             if (sp.startDate) dates.push(this.formatDate(sp.startDate));
@@ -323,7 +322,6 @@ class App {
                     </div>
                     <div class="sp-card-footer">
                         <div class="sp-card-dates">${dates.join(' - ')}</div>
-                        <span class="sp-card-owner dept-${sp.owner}">${dept.short}</span>
                     </div>
                 </div>
             `;
@@ -353,7 +351,19 @@ class App {
         this.populateSubProjectFilter('filterSubProject');
 
         // Get filtered tasks (root only)
-        let tasks = store.getTasks({ ...filters, rootOnly: true });
+        // For department filter: also show parent tasks that have matching subtasks
+        let tasks;
+        if (filters.department) {
+            const deptFilter = filters.department;
+            const allRoot = store.getTasks({ ...filters, department: undefined, rootOnly: true });
+            tasks = allRoot.filter(t => {
+                if (t.department === deptFilter) return true;
+                const subs = store.getSubTasks(t.id);
+                return subs.some(s => s.department === deptFilter);
+            });
+        } else {
+            tasks = store.getTasks({ ...filters, rootOnly: true });
+        }
 
         if (tasks.length === 0) {
             container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">✅</div><div class="empty-state-text">אין משימות מתאימות לסינון. לחץ על "+ משימה חדשה" להוספה.</div></div>';
@@ -778,7 +788,6 @@ class App {
         document.getElementById('spId').value = sp.id;
         document.getElementById('spName').value = sp.name;
         document.getElementById('spDescription').value = sp.description || '';
-        document.getElementById('spOwner').value = sp.owner || 'product';
         document.getElementById('spStatus').value = sp.status || 'planning';
         document.getElementById('spStartDate').value = sp.startDate || '';
         document.getElementById('spEndDate').value = sp.endDate || '';
@@ -796,7 +805,6 @@ class App {
         const data = {
             name: document.getElementById('spName').value.trim(),
             description: document.getElementById('spDescription').value.trim(),
-            owner: document.getElementById('spOwner').value,
             status: document.getElementById('spStatus').value,
             startDate: document.getElementById('spStartDate').value || null,
             endDate: document.getElementById('spEndDate').value || null,

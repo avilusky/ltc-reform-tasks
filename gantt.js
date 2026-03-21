@@ -140,8 +140,6 @@ class GanttChart {
                 const blockedIcon = isBlocked ? '<span class="dep-icon">🚫</span>' : '';
 
                 // Store positions for dependency arrows
-                // right = distance of bar's right edge from timeline's right
-                // endRight = distance of bar's left edge from timeline's right (= right + width)
                 rowPositions[task.id] = { row: rowIndex, right: barRight, width: barWidth, endRight: barRight + barWidth };
 
                 html += `<div class="gantt-row" onclick="app.openTaskDetail('${task.id}')">`;
