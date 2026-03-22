@@ -10,8 +10,8 @@ class App {
         this.gantt = new GanttChart('ganttChart');
         this.editingDeps = [];
         this.confirmCallback = null;
-        this.upcomingDaysFilter = 7;
         this.upcomingDeptFilter = 'all';
+        this.taskViewMode = 'project';
 
         this.init();
     }
@@ -178,53 +178,45 @@ class App {
     renderUpcomingTasks() {
         const container = document.getElementById('upcomingTasks');
         const now = new Date();
-        now.setHours(0, 0, 0, 0);
+        const todayStr = now.toISOString().split('T')[0];
 
+        // "משימות בעבודה" = תאריך התחלה עבר + לא הושלמו (progress < 100)
         let tasks = store.getTasks({ notCompleted: true });
-        tasks = tasks.filter(t => t.dueDate);
+        tasks = tasks.filter(t => t.startDate && t.startDate <= todayStr && (t.progress || 0) < 100);
 
         // Department filter
         if (this.upcomingDeptFilter && this.upcomingDeptFilter !== 'all') {
             tasks = tasks.filter(t => t.department === this.upcomingDeptFilter);
         }
 
-        // Time filter
-        if (this.upcomingDaysFilter > 0) {
-            const futureDate = new Date();
-            futureDate.setDate(futureDate.getDate() + this.upcomingDaysFilter);
-            const futureDateStr = futureDate.toISOString().split('T')[0];
-            tasks = tasks.filter(t => t.dueDate <= futureDateStr);
-        }
-
-        tasks.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
-        tasks = tasks.slice(0, 10);
+        tasks.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+        tasks = tasks.slice(0, 15);
 
         if (tasks.length === 0) {
-            container.innerHTML = '<div class="empty-state"><div class="empty-state-text">אין משימות קרובות</div></div>';
+            container.innerHTML = '<div class="empty-state"><div class="empty-state-text">אין משימות בעבודה</div></div>';
             return;
         }
 
         let html = '';
         tasks.forEach(task => {
             const dept = DEPARTMENTS[task.department] || DEPARTMENTS.product;
-            const dueDate = new Date(task.dueDate);
-            const diffDays = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24));
-            let dateClass = 'date-normal';
-            let dateText = this.formatDate(task.dueDate);
-
-            if (diffDays < 0) {
-                dateClass = 'date-overdue';
-                dateText = `באיחור (${Math.abs(diffDays)} ימים)`;
-            } else if (diffDays <= 3) {
-                dateClass = 'date-urgent';
-                dateText = diffDays === 0 ? 'היום!' : `${diffDays} ימים`;
-            } else if (diffDays <= 7) {
-                dateClass = 'date-urgent';
-            }
-
             const sp = store.getSubProject(task.subProjectId);
             const priorityDef = PRIORITIES[task.priority];
-            const statusDef = TASK_STATUSES[task.status];
+
+            let dateText = '';
+            if (task.dueDate) {
+                const dueDate = new Date(task.dueDate);
+                const diffDays = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24));
+                if (diffDays < 0) {
+                    dateText = `באיחור (${Math.abs(diffDays)} ימים)`;
+                } else if (diffDays === 0) {
+                    dateText = 'מסתיים היום!';
+                } else {
+                    dateText = `עוד ${diffDays} ימים`;
+                }
+            }
+
+            const dateClass = task.dueDate && new Date(task.dueDate) < now ? 'date-overdue' : 'date-normal';
 
             html += `
                 <div class="upcoming-task-item" onclick="app.openTaskDetail('${task.id}')">
@@ -237,7 +229,10 @@ class App {
                             <span style="color:${priorityDef.color}">${priorityDef.label}</span>
                         </div>
                     </div>
-                    <div class="upcoming-task-date ${dateClass}">${dateText}</div>
+                    <div class="upcoming-task-right">
+                        <div class="upcoming-task-progress">${task.progress || 0}%</div>
+                        ${dateText ? `<div class="upcoming-task-date ${dateClass}">${dateText}</div>` : ''}
+                    </div>
                 </div>
             `;
         });
@@ -293,9 +288,10 @@ class App {
             const inProgress = tasks.filter(t => t.status === 'in-progress').length;
             const pct = store.getSubProjectProgress(sp.id);
             const statusDef = SUBPROJECT_STATUSES[sp.status];
+            const spDates = store.getSubProjectDates(sp.id);
             const dates = [];
-            if (sp.startDate) dates.push(this.formatDate(sp.startDate));
-            if (sp.endDate) dates.push(this.formatDate(sp.endDate));
+            if (spDates.startDate) dates.push(this.formatDate(spDates.startDate));
+            if (spDates.endDate) dates.push(this.formatDate(spDates.endDate));
 
             html += `
                 <div class="sp-card" style="--sp-color:${sp.color}" onclick="app.navigateToSubProject('${sp.id}')">
@@ -343,7 +339,18 @@ class App {
     }
 
     // === Tasks ===
+    setTaskView(mode, btn) {
+        this.taskViewMode = mode;
+        btn.closest('.view-toggle').querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        this.renderTasks();
+    }
+
     renderTasks() {
+        if (this.taskViewMode === 'timeline') {
+            return this.renderTasksTimeline();
+        }
+
         const container = document.getElementById('tasksContainer');
         const filters = this.getTaskFilters();
 
@@ -450,6 +457,107 @@ class App {
                 </div>
             </div>
         `;
+    }
+
+    renderTasksTimeline() {
+        const container = document.getElementById('tasksContainer');
+        const filters = this.getTaskFilters();
+        this.populateSubProjectFilter('filterSubProject');
+
+        const now = new Date();
+        const todayStr = now.toISOString().split('T')[0];
+        const soonDate = new Date();
+        soonDate.setDate(soonDate.getDate() + 14);
+        const soonStr = soonDate.toISOString().split('T')[0];
+
+        // Get ALL tasks (root + subtasks) with filters
+        let allTasks = store.getTasks(filters);
+
+        if (allTasks.length === 0) {
+            container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">✅</div><div class="empty-state-text">אין משימות מתאימות לסינון.</div></div>';
+            return;
+        }
+
+        // Split into 3 groups
+        const groups = {
+            now: { label: 'עכשיו', color: '#ef4444', icon: '🔴', tasks: [] },
+            soon: { label: 'בקרוב', color: '#3b82f6', icon: '🔵', tasks: [] },
+            later: { label: 'בהמשך', color: '#94a3b8', icon: '⚪', tasks: [] }
+        };
+
+        allTasks.forEach(task => {
+            if (task.status === 'completed') return;
+            if (task.startDate && task.startDate <= todayStr) {
+                groups.now.tasks.push(task);
+            } else if (task.startDate && task.startDate <= soonStr) {
+                groups.soon.tasks.push(task);
+            } else {
+                groups.later.tasks.push(task);
+            }
+        });
+
+        // Sort each group by startDate then priority
+        const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+        Object.values(groups).forEach(g => {
+            g.tasks.sort((a, b) => {
+                if (a.startDate && b.startDate) {
+                    const dateDiff = new Date(a.startDate) - new Date(b.startDate);
+                    if (dateDiff !== 0) return dateDiff;
+                }
+                return (priorityOrder[a.priority] || 2) - (priorityOrder[b.priority] || 2);
+            });
+        });
+
+        let html = '';
+        const subProjects = store.getSubProjects();
+        const spMap = {};
+        subProjects.forEach(sp => spMap[sp.id] = sp);
+
+        Object.values(groups).forEach(group => {
+            if (group.tasks.length === 0) return;
+            html += `<div class="timeline-group">`;
+            html += `<div class="timeline-header" style="--tl-color: ${group.color}">`;
+            html += `<span class="timeline-icon">${group.icon}</span>`;
+            html += `<span class="timeline-label">${group.label}</span>`;
+            html += `<span class="timeline-count">${group.tasks.length}</span>`;
+            html += `</div>`;
+            html += `<div class="timeline-body">`;
+
+            // Group by sub-project within each time group
+            const byProject = {};
+            group.tasks.forEach(task => {
+                if (!byProject[task.subProjectId]) byProject[task.subProjectId] = [];
+                byProject[task.subProjectId].push(task);
+            });
+
+            Object.entries(byProject).forEach(([spId, tasks]) => {
+                const sp = spMap[spId];
+                if (!sp) return;
+
+                // Project header
+                html += `<div class="timeline-sp-header" style="border-right-color:${sp.color}">`;
+                html += `<span>${sp.icon}</span> <span style="color:${sp.color};font-weight:600">${sp.name}</span>`;
+                html += `</div>`;
+
+                // Show parent labels for subtasks - track which parents already shown
+                const shownParents = new Set();
+                tasks.forEach(task => {
+                    const isSubtask = !!task.parentTaskId;
+                    if (isSubtask && !shownParents.has(task.parentTaskId)) {
+                        const parent = store.getTask(task.parentTaskId);
+                        if (parent) {
+                            shownParents.add(task.parentTaskId);
+                            html += `<div class="timeline-parent-label">${parent.title}</div>`;
+                        }
+                    }
+                    html += this.renderTaskRow(task, isSubtask);
+                });
+            });
+
+            html += `</div></div>`;
+        });
+
+        container.innerHTML = html;
     }
 
     getTaskFilters() {
@@ -800,8 +908,9 @@ class App {
         document.getElementById('spName').value = sp.name;
         document.getElementById('spDescription').value = sp.description || '';
         document.getElementById('spStatus').value = sp.status || 'planning';
-        document.getElementById('spStartDate').value = sp.startDate || '';
-        document.getElementById('spEndDate').value = sp.endDate || '';
+        const spDates = store.getSubProjectDates(sp.id);
+        document.getElementById('spStartDate').value = spDates.startDate || sp.startDate || '';
+        document.getElementById('spEndDate').value = spDates.endDate || sp.endDate || '';
         document.getElementById('spColor').value = sp.color || '#3b82f6';
         document.getElementById('spIcon').value = sp.icon || '📁';
         document.getElementById('spModalDelete').style.display = 'inline-flex';
@@ -985,6 +1094,17 @@ class App {
         document.getElementById('taskDetailTitle').textContent = task.title;
 
         let html = '';
+
+        // Parent task link (for subtasks)
+        if (task.parentTaskId) {
+            const parent = store.getTask(task.parentTaskId);
+            if (parent) {
+                html += `<div class="task-detail-parent" onclick="app.openTaskDetail('${parent.id}')">`;
+                html += `<span style="color:var(--text-secondary);font-size:12px">משימת אם:</span> `;
+                html += `<span style="color:var(--primary);cursor:pointer;font-size:13px;font-weight:500">${parent.title}</span>`;
+                html += `</div>`;
+            }
+        }
 
         // Badges
         html += '<div class="task-detail-header">';

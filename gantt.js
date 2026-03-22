@@ -48,8 +48,9 @@ class GanttChart {
             if (t.dueDate) allDates.push(new Date(t.dueDate));
         });
         subProjects.forEach(sp => {
-            if (sp.startDate) allDates.push(new Date(sp.startDate));
-            if (sp.endDate) allDates.push(new Date(sp.endDate));
+            const spDates = store.getSubProjectDates(sp.id);
+            if (spDates.startDate) allDates.push(new Date(spDates.startDate));
+            if (spDates.endDate) allDates.push(new Date(spDates.endDate));
         });
 
         if (allDates.length === 0) {
@@ -109,9 +110,10 @@ class GanttChart {
         Object.values(grouped).forEach(group => {
             const sp = group.sp;
 
-            // Sub-project row
-            const spStart = sp.startDate ? this.getDayOffset(minDate, new Date(sp.startDate)) : 0;
-            const spEnd = sp.endDate ? this.getDayOffset(minDate, new Date(sp.endDate)) : totalDays;
+            // Sub-project row (dates calculated from tasks)
+            const spDates = store.getSubProjectDates(sp.id);
+            const spStart = spDates.startDate ? this.getDayOffset(minDate, new Date(spDates.startDate)) : 0;
+            const spEnd = spDates.endDate ? this.getDayOffset(minDate, new Date(spDates.endDate)) : totalDays;
             const spWidth = Math.max((spEnd - spStart) * config.pxPerDay, 10);
             const spRight = spStart * config.pxPerDay;
 

@@ -360,6 +360,17 @@ class Store {
         }
     }
 
+    getSubProjectDates(spId) {
+        const tasks = this.tasks.filter(t => t.subProjectId === spId);
+        let earliest = null;
+        let latest = null;
+        tasks.forEach(t => {
+            if (t.startDate && (!earliest || t.startDate < earliest)) earliest = t.startDate;
+            if (t.dueDate && (!latest || t.dueDate > latest)) latest = t.dueDate;
+        });
+        return { startDate: earliest, endDate: latest };
+    }
+
     getSubProjectProgress(spId) {
         const tasks = this.tasks.filter(t => t.subProjectId === spId && !t.parentTaskId);
         if (tasks.length === 0) return 0;

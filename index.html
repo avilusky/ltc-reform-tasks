@@ -128,14 +128,8 @@
                 <!-- Upcoming Deadlines -->
                 <div class="dashboard-card">
                     <div class="card-header">
-                        <h3>משימות קרובות</h3>
+                        <h3>משימות בעבודה</h3>
                         <div class="card-header-filters">
-                            <div class="filter-group" id="timeFilters">
-                                <button class="filter-chip active" onclick="app.filterUpcomingTasks(7, this)">שבוע</button>
-                                <button class="filter-chip" onclick="app.filterUpcomingTasks(14, this)">שבועיים</button>
-                                <button class="filter-chip" onclick="app.filterUpcomingTasks(30, this)">חודש</button>
-                            </div>
-                            <div class="filter-divider"></div>
                             <div class="filter-group" id="deptFilters">
                                 <button class="filter-chip active" onclick="app.filterUpcomingDept('all', this)">הכל</button>
                                 <button class="filter-chip" onclick="app.filterUpcomingDept('product', this)">מוצר</button>
@@ -162,6 +156,10 @@
             <div class="tasks-sticky-header">
                 <div class="page-actions">
                     <button class="btn btn-primary" id="btnAddTask">+ משימה חדשה</button>
+                    <div class="view-toggle">
+                        <button class="filter-chip active" onclick="app.setTaskView('project', this)">לפי פרויקט</button>
+                        <button class="filter-chip" onclick="app.setTaskView('timeline', this)">לפי לוח זמנים</button>
+                    </div>
                     <div class="filters-bar">
                         <div class="filter-item">
                             <label class="filter-label">פרויקט:</label>
