@@ -382,8 +382,16 @@
 
                     <div class="form-row">
                         <div class="form-group full">
-                            <label for="taskNotes">הערות</label>
-                            <textarea id="taskNotes" rows="2"></textarea>
+                            <label>יומן הערות</label>
+                            <div class="notes-log-section">
+                                <div class="notes-log-list" id="notesLogList"></div>
+                                <div class="add-note-row">
+                                    <input type="text" id="noteAuthor" placeholder="שם הכותב" class="note-input-author">
+                                    <textarea id="noteText" rows="2" placeholder="כתוב הערה..." class="note-input-text"></textarea>
+                                    <input type="text" id="noteLink" placeholder="קישור (לא חובה)" class="note-input-link">
+                                    <button type="button" class="btn btn-sm btn-secondary" id="btnAddNote">+ הוסף הערה</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -530,6 +538,35 @@
                 <div class="modal-actions">
                     <button class="btn btn-danger" id="confirmYes">אישור</button>
                     <button class="btn btn-secondary" id="confirmNo">ביטול</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Note Modal -->
+    <div class="modal-overlay" id="quickNoteModal">
+        <div class="modal modal-sm modal-form">
+            <div class="modal-header">
+                <h2>הוספת הערה</h2>
+                <button class="modal-close" onclick="app.closeModal('quickNoteModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="quickNoteTaskId">
+                <div class="form-group" style="margin-bottom:12px">
+                    <label>שם הכותב</label>
+                    <input type="text" id="quickNoteAuthor" placeholder="שם הכותב">
+                </div>
+                <div class="form-group" style="margin-bottom:12px">
+                    <label>הערה</label>
+                    <textarea id="quickNoteText" rows="3" placeholder="כתוב הערה..."></textarea>
+                </div>
+                <div class="form-group" style="margin-bottom:12px">
+                    <label>קישור (לא חובה)</label>
+                    <input type="text" id="quickNoteLink" placeholder="https://...">
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-primary" onclick="app.submitQuickNote()">הוסף</button>
+                    <button class="btn btn-secondary" onclick="app.closeModal('quickNoteModal')">ביטול</button>
                 </div>
             </div>
         </div>

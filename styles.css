@@ -1967,6 +1967,7 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
 
 .modal.modal-sm {
     max-width: 380px;
+    overflow-y: hidden;
 }
 
 @keyframes slideUp {
@@ -2055,6 +2056,10 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
     border-top: none;
     justify-content: center;
     padding-top: 8px;
+}
+
+.modal-sm .modal-actions .btn-danger {
+    margin-right: 0;
 }
 
 /* ============ Forms ============ */
@@ -2205,6 +2210,130 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
     min-width: 0;
 }
 
+/* Notes Log */
+.notes-log-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.notes-log-list {
+    max-height: 200px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.notes-log-item {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-right: 3px solid var(--primary);
+    border-radius: var(--radius);
+    padding: 8px 12px;
+}
+
+.notes-log-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+    font-size: 11px;
+}
+
+.notes-log-author {
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--primary);
+}
+
+.notes-log-date {
+    color: var(--text-secondary);
+}
+
+.notes-log-delete {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 14px;
+    margin-right: auto;
+    padding: 0 4px;
+}
+
+.notes-log-delete:hover {
+    color: var(--danger);
+}
+
+.notes-log-link {
+    margin-top: 4px;
+}
+
+.notes-log-link a {
+    font-size: 11px;
+    color: var(--primary);
+    text-decoration: none;
+    word-break: break-all;
+}
+
+.notes-log-link a:hover {
+    text-decoration: underline;
+}
+
+.note-input-link {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-family: inherit;
+}
+
+.note-input-link:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.notes-log-text {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.add-note-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+.note-input-author {
+    width: 120px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-family: inherit;
+}
+
+.note-input-text {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.note-input-author:focus,
+.note-input-text:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
 /* Task Detail Modal */
 .task-detail-section {
     margin-bottom: 20px;
@@ -2212,6 +2341,29 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
 
 .task-detail-section:last-child {
     margin-bottom: 0;
+}
+
+.task-detail-columns {
+    display: flex;
+    gap: 24px;
+}
+
+.task-detail-col-right {
+    flex: 65%;
+}
+
+.task-detail-col-left {
+    flex: 35%;
+    border-right: 1px solid var(--border);
+    padding-right: 20px;
+    overflow: hidden;
+}
+
+.task-detail-col-left .notes-log-scroll {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .task-detail-parent {

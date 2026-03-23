@@ -9,6 +9,7 @@ class App {
         this.calendar = new CalendarView('calendarGrid');
         this.gantt = new GanttChart('ganttChart');
         this.editingDeps = [];
+        this.editingNotes = [];
         this.confirmCallback = null;
         this.upcomingDeptFilter = 'all';
         this.taskViewMode = 'project';
@@ -628,6 +629,9 @@ class App {
         // Dependencies
         document.getElementById('btnAddDep').addEventListener('click', () => this.addDependencyToForm());
 
+        // Notes log
+        document.getElementById('btnAddNote').addEventListener('click', () => this.addNoteToForm());
+
         // Sub-project modal
         document.getElementById('btnAddSubProject').addEventListener('click', () => this.openAddSubProject());
         document.getElementById('spModalClose').addEventListener('click', () => this.closeModal('spModal'));
@@ -711,7 +715,9 @@ class App {
         }
 
         this.editingDeps = [];
+        this.editingNotes = [];
         this.renderDependencyList();
+        this.renderNotesLog();
         this.populateDependencySelect();
         this.populateStakeholderCheckboxes([]);
 
@@ -734,7 +740,6 @@ class App {
         document.getElementById('taskStatus').value = task.status || 'waiting';
         document.getElementById('taskProgress').value = task.progress || 0;
         document.getElementById('taskProgressValue').textContent = (task.progress || 0) + '%';
-        document.getElementById('taskNotes').value = task.notes || '';
         document.getElementById('taskModalDelete').style.display = 'inline-flex';
 
         this.populateSubProjectSelect('taskSubProject');
@@ -742,7 +747,9 @@ class App {
         document.getElementById('taskSubProject').disabled = !!task.parentTaskId;
 
         this.editingDeps = task.dependencies ? [...task.dependencies] : [];
+        this.editingNotes = task.notesLog ? [...task.notesLog] : [];
         this.renderDependencyList();
+        this.renderNotesLog();
         this.populateDependencySelect(task.id);
         this.populateStakeholderCheckboxes(task.stakeholderIds || []);
 
@@ -764,7 +771,7 @@ class App {
             dueDate: document.getElementById('taskDueDate').value || null,
             status: document.getElementById('taskStatus').value,
             progress: parseInt(document.getElementById('taskProgress').value) || 0,
-            notes: document.getElementById('taskNotes').value.trim(),
+            notesLog: this.editingNotes,
             dependencies: this.editingDeps,
             stakeholderIds: this.getSelectedStakeholders()
         };
@@ -887,6 +894,137 @@ class App {
         });
 
         container.innerHTML = html;
+    }
+
+    // === Notes Log ===
+    addNoteToForm() {
+        const author = document.getElementById('noteAuthor').value.trim();
+        const text = document.getElementById('noteText').value.trim();
+        const link = document.getElementById('noteLink').value.trim();
+        if (!text) return;
+
+        this.editingNotes.unshift({
+            id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
+            author: author || 'לא צוין',
+            text,
+            link: link || '',
+            createdAt: new Date().toISOString()
+        });
+
+        document.getElementById('noteText').value = '';
+        document.getElementById('noteLink').value = '';
+        this.renderNotesLog();
+    }
+
+    deleteNoteFromForm(idx) {
+        this.showConfirm('האם למחוק הערה זו?', () => {
+            this.editingNotes.splice(idx, 1);
+            this.renderNotesLog();
+        });
+    }
+
+    formatLinkHref(link) {
+        if (!link) return '';
+        // Local path: C:\... or D:\... etc
+        if (/^[A-Za-z]:\\/.test(link)) {
+            return 'file:///' + link.replace(/\\/g, '/');
+        }
+        // Network path: \\server\share
+        if (link.startsWith('\\\\')) {
+            return 'file:///' + link.replace(/\\/g, '/');
+        }
+        return link;
+    }
+
+    formatLinkDisplay(link) {
+        if (!link) return '';
+        // Show just filename for local paths
+        const parts = link.replace(/\\/g, '/').split('/');
+        return parts[parts.length - 1] || link;
+    }
+
+    _authorColorMap = {};
+    _authorColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
+
+    buildAuthorColorMap() {
+        this._authorColorMap = {};
+        const usedColors = [];
+        const authors = [...new Set(this.editingNotes.map(n => n.author || 'לא צוין'))];
+        authors.forEach(name => {
+            const available = this._authorColors.filter(c => !usedColors.includes(c));
+            const color = available.length > 0 ? available[0] : this._authorColors[usedColors.length % this._authorColors.length];
+            this._authorColorMap[name] = color;
+            usedColors.push(color);
+        });
+    }
+
+    getAuthorColor(name) {
+        return this._authorColorMap[name] || this._authorColors[0];
+    }
+
+    renderNotesLog() {
+        const container = document.getElementById('notesLogList');
+        if (!container) return;
+
+        this.buildAuthorColorMap();
+
+        if (this.editingNotes.length === 0) {
+            container.innerHTML = '<div style="font-size:12px;color:var(--text-secondary);padding:4px 0">אין הערות</div>';
+            return;
+        }
+
+        let html = '';
+        this.editingNotes.forEach((note, idx) => {
+            const date = new Date(note.createdAt);
+            const dateStr = date.toLocaleDateString('he-IL') + ' ' + date.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+            const color = this.getAuthorColor(note.author || 'לא צוין');
+            const linkHtml = note.link ? `<div class="notes-log-link"><a href="${this.formatLinkHref(note.link)}" target="_blank" onclick="event.stopPropagation()">🔗 ${this.formatLinkDisplay(note.link)}</a></div>` : '';
+            html += `
+                <div class="notes-log-item" style="border-right-color:${color}">
+                    <div class="notes-log-meta">
+                        <span class="notes-log-author" style="color:${color}">${note.author || 'לא צוין'}</span>
+                        <span class="notes-log-date">${dateStr}</span>
+                        <button type="button" class="notes-log-delete" onclick="app.deleteNoteFromForm(${idx})">×</button>
+                    </div>
+                    <div class="notes-log-text">${note.text}</div>
+                    ${linkHtml}
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    // === Quick Note (from detail view) ===
+    openQuickNote(taskId) {
+        document.getElementById('quickNoteTaskId').value = taskId;
+        document.getElementById('quickNoteAuthor').value = '';
+        document.getElementById('quickNoteText').value = '';
+        this.openModal('quickNoteModal');
+    }
+
+    submitQuickNote() {
+        const taskId = document.getElementById('quickNoteTaskId').value;
+        const author = document.getElementById('quickNoteAuthor').value.trim() || 'לא צוין';
+        const text = document.getElementById('quickNoteText').value.trim();
+        const link = document.getElementById('quickNoteLink').value.trim();
+        if (!text || !taskId) return;
+
+        const task = store.getTask(taskId);
+        if (!task) return;
+
+        const notesLog = task.notesLog || [];
+        notesLog.unshift({
+            id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
+            author,
+            text,
+            link: link || '',
+            createdAt: new Date().toISOString()
+        });
+
+        store.updateTask(taskId, { notesLog });
+        this.closeModal('quickNoteModal');
+        this.openTaskDetail(taskId); // Refresh detail view
     }
 
     // === Sub-Project Modal ===
@@ -1117,6 +1255,10 @@ class App {
         }
         html += '</div></div>';
 
+        // Two columns
+        html += '<div class="task-detail-columns">';
+        html += '<div class="task-detail-col-right">';
+
         // Details grid
         html += '<div class="task-detail-section">';
         html += '<div class="task-detail-grid">';
@@ -1172,14 +1314,6 @@ class App {
             html += '</div>';
         }
 
-        // Notes
-        if (task.notes) {
-            html += '<div class="task-detail-section">';
-            html += '<h4 style="margin-bottom:8px;font-size:14px">הערות</h4>';
-            html += `<div class="task-detail-desc">${task.notes}</div>`;
-            html += '</div>';
-        }
-
         // Dependencies
         if (deps.length > 0) {
             html += '<div class="task-detail-section">';
@@ -1232,6 +1366,37 @@ class App {
             html += '</ul></div>';
         }
 
+        html += '</div>'; // end right column
+
+        // Left column - Notes Log
+        html += '<div class="task-detail-col-left">';
+        html += '<h4 style="margin-bottom:8px;font-size:14px">יומן הערות</h4>';
+        const notesLog = task.notesLog || [];
+        if (notesLog.length > 0) {
+            this.editingNotes = [...notesLog];
+            this.buildAuthorColorMap();
+            html += '<div class="notes-log-scroll">';
+            notesLog.forEach(note => {
+                const date = new Date(note.createdAt);
+                const dateStr = date.toLocaleDateString('he-IL') + ' ' + date.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+                const color = this.getAuthorColor(note.author || 'לא צוין');
+                const linkH = note.link ? `<div class="notes-log-link"><a href="${this.formatLinkHref(note.link)}" target="_blank">🔗 ${this.formatLinkDisplay(note.link)}</a></div>` : '';
+                html += `<div class="notes-log-item" style="border-right-color:${color}">
+                    <div class="notes-log-meta">
+                        <span class="notes-log-author" style="color:${color}">${note.author || 'לא צוין'}</span>
+                        <span class="notes-log-date">${dateStr}</span>
+                    </div>
+                    <div class="notes-log-text">${note.text}</div>
+                    ${linkH}
+                </div>`;
+            });
+            html += '</div>';
+        } else {
+            html += '<div style="font-size:12px;color:var(--text-secondary)">אין הערות</div>';
+        }
+        html += '</div>'; // end left column
+        html += '</div>'; // end columns
+
         // Actions
         html += '<div class="task-detail-actions">';
         html += `<button class="btn btn-primary" onclick="app.closeModal('taskDetailModal'); app.openEditTask('${task.id}')">✏️ עריכה</button>`;
@@ -1239,10 +1404,32 @@ class App {
             html += `<button class="btn btn-secondary" onclick="app.closeModal('taskDetailModal'); app.openAddTask('${task.id}')">+ תת משימה</button>`;
         }
         html += `<button class="btn btn-danger" onclick="app.showConfirm('האם למחוק משימה זו?', () => { store.deleteTask('${task.id}'); app.closeModal('taskDetailModal'); })">🗑️ מחק</button>`;
+        html += `<div style="margin-right:auto"></div>`;
+        html += `<button class="btn btn-sm btn-secondary" onclick="app.openQuickNote('${task.id}')">+ הוסף הערה</button>`;
         html += '</div>';
 
         document.getElementById('taskDetailBody').innerHTML = html;
         this.openModal('taskDetailModal');
+
+        // Set left column height to match right column
+        setTimeout(() => {
+            const right = document.querySelector('.task-detail-col-right');
+            const left = document.querySelector('.task-detail-col-left');
+            const scroll = document.querySelector('.notes-log-scroll');
+            if (right && left) {
+                // Hide left to measure right without interference
+                left.style.visibility = 'hidden';
+                left.style.position = 'absolute';
+                const rightH = right.offsetHeight;
+                left.style.visibility = '';
+                left.style.position = '';
+                left.style.height = rightH + 'px';
+                if (scroll) {
+                    const headerH = left.querySelector('h4')?.offsetHeight || 0;
+                    scroll.style.maxHeight = (rightH - headerH - 16) + 'px';
+                }
+            }
+        }, 50);
     }
 
     // === Calendar Day Click ===

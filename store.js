@@ -241,6 +241,12 @@ class Store {
         if (STATUS_MIGRATION[task.status]) {
             task.status = STATUS_MIGRATION[task.status];
         }
+        // Migrate old string notes to notesLog
+        if (typeof task.notes === 'string' && task.notes.trim()) {
+            task.notesLog = [{ id: this.generateId(), author: '', text: task.notes, createdAt: task.updatedAt || task.createdAt || new Date().toISOString() }];
+            task.notes = undefined;
+        }
+        if (!task.notesLog) task.notesLog = [];
         return task;
     }
 
@@ -431,7 +437,7 @@ class Store {
             progress: data.progress || 0,
             dependencies: data.dependencies || [],
             stakeholderIds: data.stakeholderIds || [],
-            notes: data.notes || '',
+            notesLog: data.notesLog || [],
             order: data.order ?? this.tasks.filter(t => t.subProjectId === data.subProjectId && t.parentTaskId === (data.parentTaskId || null)).length,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
