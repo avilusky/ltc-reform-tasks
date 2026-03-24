@@ -521,6 +521,9 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
     box-shadow: var(--shadow);
     overflow: hidden;
     border: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 250px);
 }
 
 .dashboard-card.full-width {
@@ -587,6 +590,9 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
 
 .card-body {
     padding: 16px 20px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
 }
 
 /* Department Progress */
