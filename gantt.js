@@ -65,8 +65,19 @@ class GanttChart {
         minDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
         maxDate = new Date(maxDate.getFullYear(), maxDate.getMonth() + 1, 0);
 
-        const config = this.zoomConfig[this.zoom];
+        const config = { ...this.zoomConfig[this.zoom] };
         const totalDays = Math.ceil((maxDate - minDate) / (1000 * 60 * 60 * 24));
+
+        // For monthly view (quarter): fit to container width (no horizontal scroll)
+        if (this.zoom === 'quarter') {
+            const containerWidth = this.container.parentElement ? this.container.parentElement.clientWidth : this.container.clientWidth;
+            const labelsWidth = 200; // approximate width of labels column
+            const availableWidth = containerWidth - labelsWidth - 20;
+            if (availableWidth > 0 && totalDays > 0) {
+                config.pxPerDay = Math.max(availableWidth / totalDays, 3);
+            }
+        }
+
         const timelineWidth = totalDays * config.pxPerDay;
 
         const today = new Date();
@@ -328,12 +339,18 @@ class GanttChart {
     }
 
     scrollToToday() {
-        // Use scrollIntoView on the today line - works reliably in RTL
-        setTimeout(() => {
-            const todayLine = this.container.querySelector('.gantt-today-line');
-            if (todayLine) {
-                todayLine.scrollIntoView({ inline: 'center', block: 'nearest' });
-            }
-        }, 100);
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                const todayLine = this.container.querySelector('.gantt-today-line');
+                const scrollParent = this.container.closest('.gantt-scroll-container') || this.container.parentElement;
+                if (todayLine && scrollParent) {
+                    const lineRect = todayLine.getBoundingClientRect();
+                    const parentRect = scrollParent.getBoundingClientRect();
+                    const offset = lineRect.right - parentRect.right;
+                    const target = scrollParent.scrollLeft + offset + (parentRect.width * 0.35);
+                    scrollParent.scrollTo({ left: target, behavior: 'smooth' });
+                }
+            }, 150);
+        });
     }
 }

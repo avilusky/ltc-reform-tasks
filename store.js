@@ -506,10 +506,11 @@ class Store {
         return [...this.stakeholders];
     }
 
-    addStakeholder(name) {
+    addStakeholder(name, type = 'external') {
         const sh = {
             id: this.generateId(),
             name,
+            type, // 'external' or 'internal'
             createdAt: new Date().toISOString()
         };
         this.stakeholders.push(sh);
@@ -632,12 +633,12 @@ class Store {
 
     seedStakeholders() {
         this.stakeholders = [
-            { id: 'sh1', name: 'אגף תקציבים', createdAt: '2026-03-01T00:00:00.000Z' },
-            { id: 'sh2', name: 'משרד הבריאות', createdAt: '2026-03-01T00:00:00.000Z' },
-            { id: 'sh3', name: 'קופות חולים', createdAt: '2026-03-01T00:00:00.000Z' },
-            { id: 'sh4', name: 'ביטוח לאומי', createdAt: '2026-03-01T00:00:00.000Z' },
-            { id: 'sh5', name: 'משרד המשפטים', createdAt: '2026-03-01T00:00:00.000Z' },
-            { id: 'sh6', name: 'רשות המסים', createdAt: '2026-03-01T00:00:00.000Z' }
+            { id: 'sh1', name: 'אגף תקציבים', type: 'external', createdAt: '2026-03-01T00:00:00.000Z' },
+            { id: 'sh2', name: 'משרד הבריאות', type: 'external', createdAt: '2026-03-01T00:00:00.000Z' },
+            { id: 'sh3', name: 'קופות חולים', type: 'external', createdAt: '2026-03-01T00:00:00.000Z' },
+            { id: 'sh4', name: 'ביטוח לאומי', type: 'external', createdAt: '2026-03-01T00:00:00.000Z' },
+            { id: 'sh5', name: 'משרד המשפטים', type: 'external', createdAt: '2026-03-01T00:00:00.000Z' },
+            { id: 'sh6', name: 'רשות המסים', type: 'external', createdAt: '2026-03-01T00:00:00.000Z' }
         ];
     }
 

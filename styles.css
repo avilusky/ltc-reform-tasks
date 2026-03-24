@@ -2280,6 +2280,25 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
     text-decoration: underline;
 }
 
+.local-path-link {
+    font-size: 11px;
+    color: var(--primary);
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--bg);
+    transition: background 0.15s;
+}
+
+.local-path-link:hover {
+    background: var(--primary-light);
+}
+
+.local-path-name {
+    font-size: 10px;
+    color: var(--text-secondary);
+}
+
 .note-input-link {
     flex: 1;
     padding: 8px 10px;
@@ -2675,6 +2694,21 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
     color: var(--text);
 }
 
+.stakeholders-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.stakeholders-section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+}
+
 .stakeholders-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -2887,6 +2921,19 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
 
 .multi-select-option input[type="checkbox"] {
     accent-color: var(--primary);
+}
+
+.multi-select-group-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 8px 12px 4px;
+    border-top: 1px solid var(--border);
+}
+
+.multi-select-group-label:first-child {
+    border-top: none;
+    padding-top: 4px;
 }
 
 /* ============ Stakeholder Tags ============ */

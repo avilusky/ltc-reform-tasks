@@ -258,11 +258,24 @@
         <section class="page" id="page-settings">
             <div class="page-actions">
                 <div class="settings-add-row">
+                    <select id="newStakeholderType" class="filter-select" style="min-width:100px">
+                        <option value="external">חיצוני</option>
+                        <option value="internal">פנימי</option>
+                    </select>
                     <input type="text" id="newStakeholderName" placeholder="הוסף בעל עניין חדש..." class="filter-select">
                     <button class="btn btn-primary btn-sm" id="btnAddStakeholder">+ הוסף</button>
                 </div>
             </div>
-            <div class="stakeholders-grid" id="stakeholdersList"></div>
+            <div class="stakeholders-sections">
+                <div class="stakeholders-section">
+                    <h3 class="stakeholders-section-title">חיצוניים</h3>
+                    <div class="stakeholders-grid" id="stakeholdersExternal"></div>
+                </div>
+                <div class="stakeholders-section">
+                    <h3 class="stakeholders-section-title">פנימיים</h3>
+                    <div class="stakeholders-grid" id="stakeholdersInternal"></div>
+                </div>
+            </div>
         </section>
     </main>
 
@@ -538,6 +551,25 @@
                 <div class="modal-actions">
                     <button class="btn btn-danger" id="confirmYes">אישור</button>
                     <button class="btn btn-secondary" id="confirmNo">ביטול</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Modal -->
+    <div class="modal-overlay" id="passwordModal">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h2>אימות מנהל</h2>
+                <button class="modal-close" onclick="app.closeModal('passwordModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom:12px">הכנס סיסמת מנהל מערכת:</p>
+                <input type="password" id="adminPasswordInput" class="form-control" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:14px;text-align:center" onkeydown="if(event.key==='Enter') app.verifyPassword()">
+                <p id="passwordError" style="display:none;color:#ef4444;font-size:12px;margin-top:8px">סיסמה שגויה</p>
+                <div class="modal-actions" style="justify-content:center">
+                    <button class="btn btn-primary" onclick="app.verifyPassword()">אישור</button>
+                    <button class="btn btn-secondary" onclick="app.closeModal('passwordModal')">ביטול</button>
                 </div>
             </div>
         </div>

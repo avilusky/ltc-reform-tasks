@@ -655,8 +655,13 @@ class App {
         document.getElementById('confirmClose').addEventListener('click', () => this.closeModal('confirmModal'));
         document.getElementById('confirmNo').addEventListener('click', () => this.closeModal('confirmModal'));
         document.getElementById('confirmYes').addEventListener('click', () => {
-            if (this.confirmCallback) this.confirmCallback();
-            this.closeModal('confirmModal');
+            if (this.confirmRequiresPassword) {
+                this.closeModal('confirmModal');
+                this.showPasswordDialog();
+            } else {
+                if (this.confirmCallback) this.confirmCallback();
+                this.closeModal('confirmModal');
+            }
         });
 
         // Close modals on overlay click (except edit forms)
@@ -678,10 +683,34 @@ class App {
         document.getElementById(id).classList.remove('active');
     }
 
-    showConfirm(message, callback) {
+    showConfirm(message, callback, requirePassword = false) {
         document.getElementById('confirmMessage').textContent = message;
         this.confirmCallback = callback;
+        this.confirmRequiresPassword = requirePassword;
         this.openModal('confirmModal');
+    }
+
+    showDeleteConfirm(message, callback) {
+        this.showConfirm(message, callback, true);
+    }
+
+    showPasswordDialog() {
+        document.getElementById('adminPasswordInput').value = '';
+        document.getElementById('passwordError').style.display = 'none';
+        this.openModal('passwordModal');
+        setTimeout(() => document.getElementById('adminPasswordInput').focus(), 100);
+    }
+
+    verifyPassword() {
+        const input = document.getElementById('adminPasswordInput').value;
+        if (input === '15041993') {
+            this.closeModal('passwordModal');
+            if (this.confirmCallback) this.confirmCallback();
+        } else {
+            document.getElementById('passwordError').style.display = 'block';
+            document.getElementById('adminPasswordInput').value = '';
+            document.getElementById('adminPasswordInput').focus();
+        }
     }
 
     // === Task Modal ===
@@ -793,7 +822,7 @@ class App {
         const id = document.getElementById('taskId').value;
         if (!id) return;
 
-        this.showConfirm('האם אתה בטוח שברצונך למחוק משימה זו? כל תתי המשימות ימחקו גם הם.', () => {
+        this.showDeleteConfirm('האם אתה בטוח שברצונך למחוק משימה זו? כל תתי המשימות ימחקו גם הם.', () => {
             store.deleteTask(id);
             this.closeModal('taskModal');
         });
@@ -925,15 +954,23 @@ class App {
 
     formatLinkHref(link) {
         if (!link) return '';
-        // Local path: C:\... or D:\... etc
-        if (/^[A-Za-z]:\\/.test(link)) {
-            return 'file:///' + link.replace(/\\/g, '/');
-        }
-        // Network path: \\server\share
-        if (link.startsWith('\\\\')) {
-            return 'file:///' + link.replace(/\\/g, '/');
-        }
         return link;
+    }
+
+    isLocalPath(link) {
+        if (!link) return false;
+        return /^[A-Za-z]:\\/.test(link) || link.startsWith('\\\\');
+    }
+
+    copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            // Brief visual feedback
+            const btn = document.querySelector('.copy-feedback');
+            if (btn) {
+                btn.textContent = '✓ הועתק';
+                setTimeout(() => { btn.textContent = '📋 העתק נתיב'; }, 1500);
+            }
+        });
     }
 
     formatLinkDisplay(link) {
@@ -978,7 +1015,14 @@ class App {
             const date = new Date(note.createdAt);
             const dateStr = date.toLocaleDateString('he-IL') + ' ' + date.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
             const color = this.getAuthorColor(note.author || 'לא צוין');
-            const linkHtml = note.link ? `<div class="notes-log-link"><a href="${this.formatLinkHref(note.link)}" target="_blank" onclick="event.stopPropagation()">🔗 ${this.formatLinkDisplay(note.link)}</a></div>` : '';
+            let linkHtml = '';
+            if (note.link) {
+                if (this.isLocalPath(note.link)) {
+                    linkHtml = `<div class="notes-log-link"><span class="copy-feedback local-path-link" onclick="event.stopPropagation(); app.copyToClipboard('${note.link.replace(/\\/g, "\\\\").replace(/'/g, "\\'")}')">📋 העתק נתיב</span> <span class="local-path-name">${this.formatLinkDisplay(note.link)}</span></div>`;
+                } else {
+                    linkHtml = `<div class="notes-log-link"><a href="${note.link}" target="_blank" onclick="event.stopPropagation()">🔗 ${this.formatLinkDisplay(note.link)}</a></div>`;
+                }
+            }
             html += `
                 <div class="notes-log-item" style="border-right-color:${color}">
                     <div class="notes-log-meta">
@@ -1090,7 +1134,7 @@ class App {
             ? `האם אתה בטוח? יימחקו גם ${tasks.length} משימות השייכות לפרויקט זה.`
             : 'האם אתה בטוח שברצונך למחוק פרויקט זה?';
 
-        this.showConfirm(msg, () => {
+        this.showDeleteConfirm(msg, () => {
             store.deleteSubProject(id);
             this.closeModal('spModal');
         });
@@ -1101,13 +1145,24 @@ class App {
         const container = document.getElementById('stakeholdersOptions');
         const trigger = document.getElementById('stakeholdersTrigger');
         const stakeholders = store.getStakeholders();
+        const external = stakeholders.filter(sh => sh.type !== 'internal');
+        const internal = stakeholders.filter(sh => sh.type === 'internal');
 
-        container.innerHTML = stakeholders.map(sh => `
+        const renderGroup = (items) => items.map(sh => `
             <label class="multi-select-option">
                 <input type="checkbox" value="${sh.id}" ${selectedIds.includes(sh.id) ? 'checked' : ''}>
                 <span>${sh.name}</span>
             </label>
         `).join('');
+
+        let html = '';
+        if (external.length > 0) {
+            html += `<div class="multi-select-group-label">חיצוניים</div>${renderGroup(external)}`;
+        }
+        if (internal.length > 0) {
+            html += `<div class="multi-select-group-label">פנימיים</div>${renderGroup(internal)}`;
+        }
+        container.innerHTML = html;
 
         // Update trigger text
         container.querySelectorAll('input').forEach(cb => {
@@ -1144,54 +1199,61 @@ class App {
 
     // === Stakeholders Page ===
     renderSettings() {
-        const container = document.getElementById('stakeholdersList');
         const stakeholders = store.getStakeholders();
-
-        if (stakeholders.length === 0) {
-            container.innerHTML = '<div class="empty-state"><div class="empty-state-text">אין בעלי עניין. הוסף את הראשון למעלה.</div></div>';
-            return;
-        }
+        const external = stakeholders.filter(sh => sh.type !== 'internal');
+        const internal = stakeholders.filter(sh => sh.type === 'internal');
 
         const shColors = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899', '#6366f1'];
-        container.innerHTML = stakeholders.map((sh, idx) => {
-            const tasks = store.getTasksForStakeholder(sh.id);
-            const taskCount = tasks.length;
-            const color = shColors[idx % shColors.length];
 
-            let tasksHtml = '';
-            if (tasks.length > 0) {
-                tasksHtml = tasks.map(t => {
-                    const statusDef = TASK_STATUSES[t.status] || TASK_STATUSES.waiting;
-                    const sp = store.getSubProject(t.subProjectId);
-                    const spName = sp ? sp.icon + ' ' + sp.name : '';
-                    return `<div class="sh-task-item" onclick="event.stopPropagation(); app.openTaskDetail('${t.id}')">
-                        <span class="sh-task-status" style="color:${statusDef.color}">${statusDef.icon}</span>
-                        <span class="sh-task-title">${t.title}</span>
-                        <span class="sh-task-project">${spName}</span>
-                    </div>`;
-                }).join('');
-            } else {
-                tasksHtml = '<div class="sh-no-tasks">אין משימות משויכות</div>';
+        const renderGroup = (list, container) => {
+            const el = document.getElementById(container);
+            if (list.length === 0) {
+                el.innerHTML = '<div class="sh-no-tasks" style="padding:12px">אין בעלי עניין</div>';
+                return;
             }
+            el.innerHTML = list.map((sh, idx) => {
+                const tasks = store.getTasksForStakeholder(sh.id);
+                const taskCount = tasks.length;
+                const color = shColors[idx % shColors.length];
 
-            return `
-                <div class="stakeholder-card" id="sh-card-${sh.id}" style="--sh-color: ${color}">
-                    <div class="stakeholder-card-header" onclick="app.toggleStakeholderCard('${sh.id}')">
-                        <div class="sh-card-info">
-                            <div>
-                                <div class="sh-card-name">${sh.name}</div>
-                                <span class="sh-card-count">${taskCount} משימות משויכות</span>
+                let tasksHtml = '';
+                if (tasks.length > 0) {
+                    tasksHtml = tasks.map(t => {
+                        const statusDef = TASK_STATUSES[t.status] || TASK_STATUSES.waiting;
+                        const sp = store.getSubProject(t.subProjectId);
+                        const spName = sp ? sp.icon + ' ' + sp.name : '';
+                        return `<div class="sh-task-item" onclick="event.stopPropagation(); app.openTaskDetail('${t.id}')">
+                            <span class="sh-task-status" style="color:${statusDef.color}">${statusDef.icon}</span>
+                            <span class="sh-task-title">${t.title}</span>
+                            <span class="sh-task-project">${spName}</span>
+                        </div>`;
+                    }).join('');
+                } else {
+                    tasksHtml = '<div class="sh-no-tasks">אין משימות משויכות</div>';
+                }
+
+                return `
+                    <div class="stakeholder-card" id="sh-card-${sh.id}" style="--sh-color: ${color}">
+                        <div class="stakeholder-card-header" onclick="app.toggleStakeholderCard('${sh.id}')">
+                            <div class="sh-card-info">
+                                <div>
+                                    <div class="sh-card-name">${sh.name}</div>
+                                    <span class="sh-card-count">${taskCount} משימות משויכות</span>
+                                </div>
+                            </div>
+                            <div class="sh-card-actions">
+                                <button class="btn-icon-danger" onclick="event.stopPropagation(); app.deleteStakeholder('${sh.id}')" title="מחק">×</button>
+                                <span class="sh-card-arrow">◂</span>
                             </div>
                         </div>
-                        <div class="sh-card-actions">
-                            <button class="btn-icon-danger" onclick="event.stopPropagation(); app.deleteStakeholder('${sh.id}')" title="מחק">×</button>
-                            <span class="sh-card-arrow">◂</span>
-                        </div>
+                        <div class="stakeholder-tasks-list">${tasksHtml}</div>
                     </div>
-                    <div class="stakeholder-tasks-list">${tasksHtml}</div>
-                </div>
-            `;
-        }).join('');
+                `;
+            }).join('');
+        };
+
+        renderGroup(external, 'stakeholdersExternal');
+        renderGroup(internal, 'stakeholdersInternal');
     }
 
     toggleStakeholderCard(shId) {
@@ -1201,15 +1263,16 @@ class App {
 
     addStakeholder() {
         const input = document.getElementById('newStakeholderName');
+        const typeSelect = document.getElementById('newStakeholderType');
         const name = input.value.trim();
         if (!name) return;
-        store.addStakeholder(name);
+        store.addStakeholder(name, typeSelect.value);
         input.value = '';
         this.renderSettings();
     }
 
     deleteStakeholder(id) {
-        this.showConfirm('האם למחוק בעל עניין זה?', () => {
+        this.showDeleteConfirm('האם למחוק בעל עניין זה?', () => {
             store.deleteStakeholder(id);
             this.renderSettings();
         });
@@ -1380,7 +1443,14 @@ class App {
                 const date = new Date(note.createdAt);
                 const dateStr = date.toLocaleDateString('he-IL') + ' ' + date.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
                 const color = this.getAuthorColor(note.author || 'לא צוין');
-                const linkH = note.link ? `<div class="notes-log-link"><a href="${this.formatLinkHref(note.link)}" target="_blank">🔗 ${this.formatLinkDisplay(note.link)}</a></div>` : '';
+                let linkH = '';
+                if (note.link) {
+                    if (this.isLocalPath(note.link)) {
+                        linkH = `<div class="notes-log-link"><span class="copy-feedback local-path-link" onclick="event.stopPropagation(); app.copyToClipboard('${note.link.replace(/\\/g, "\\\\").replace(/'/g, "\\'")}')">📋 העתק נתיב</span> <span class="local-path-name">${this.formatLinkDisplay(note.link)}</span></div>`;
+                    } else {
+                        linkH = `<div class="notes-log-link"><a href="${note.link}" target="_blank">🔗 ${this.formatLinkDisplay(note.link)}</a></div>`;
+                    }
+                }
                 html += `<div class="notes-log-item" style="border-right-color:${color}">
                     <div class="notes-log-meta">
                         <span class="notes-log-author" style="color:${color}">${note.author || 'לא צוין'}</span>
@@ -1403,7 +1473,7 @@ class App {
         if (!task.parentTaskId) {
             html += `<button class="btn btn-secondary" onclick="app.closeModal('taskDetailModal'); app.openAddTask('${task.id}')">+ תת משימה</button>`;
         }
-        html += `<button class="btn btn-danger" onclick="app.showConfirm('האם למחוק משימה זו?', () => { store.deleteTask('${task.id}'); app.closeModal('taskDetailModal'); })">🗑️ מחק</button>`;
+        html += `<button class="btn btn-danger" onclick="app.showDeleteConfirm('האם למחוק משימה זו?', () => { store.deleteTask('${task.id}'); app.closeModal('taskDetailModal'); })">🗑️ מחק</button>`;
         html += `<div style="margin-right:auto"></div>`;
         html += `<button class="btn btn-sm btn-secondary" onclick="app.openQuickNote('${task.id}')">+ הוסף הערה</button>`;
         html += '</div>';
