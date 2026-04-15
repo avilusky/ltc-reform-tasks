@@ -1269,32 +1269,31 @@ class App {
     </div>
 
     <div class="roadmap-columns">
-        <!-- מבוגרים 55+ -->
+        <!-- מבוגרים מעל גיל החתך -->
         <div class="roadmap-section" style="--rm-color: #c75b39">
             <div class="roadmap-section-header">
                 <h3>מבוגרים - הקבוצה הסגורה</h3>
-                <span class="roadmap-age-badge" style="background:#c75b39">55+</span>
+                <span class="roadmap-age-badge" style="background:#c75b39">מעל גיל החתך</span>
             </div>
 
             <div class="rm-box" onclick="this.classList.toggle('expanded')">
-                <div class="rm-box-header"><span class="rm-num" style="background:#c75b39">1</span><span class="rm-title">הצדקה - המוצר לא בר-קיימא</span><span class="rm-status rm-resolved">✅ חזקה</span><span class="rm-arrow">◄</span></div>
+                <div class="rm-box-header"><span class="rm-num" style="background:#c75b39">1</span><span class="rm-title">הצדקה - המוצר לא בר-קיימא</span><span class="rm-status rm-resolved">✅ מגובש</span><span class="rm-arrow">◄</span></div>
                 <div class="rm-box-body">
                     <div class="rm-desc">ביסוס עובדתי לכך שהמודל הקיים אינו בר-קיימא לטווח ארוך.</div>
-                    <div class="rm-callout rm-callout-success"><strong>נקודות ביסוס:</strong><br>• דוח מבקר המדינה<br>• חוסר יציבות היסטורי<br>• אי-ודאות אקטוארית 30+ שנה<br>• אוריינות מבוטחים גוברת</div>
-                    <div class="rm-callout rm-callout-info" style="margin-top:6px"><strong>הערה אקטוארית:</strong> ניתן לבסס היסטורית אך קשה להציג תחזית שלילית.</div>
+                    <div class="rm-callout rm-callout-success"><strong>נקודות ביסוס:</strong><br>• חוסר יציבות היסטורי — תנודתיות והחמרה בתנאים לאורך השנים<br>• סבסוד צולב — צעירים ממנים מבוגרים במוצר וולונטרי, לא תקין ולא בר-קיימא<br>• דוח מבקר המדינה</div>
                 </div>
             </div>
             <div class="rm-arrow-down">▼</div>
 
             <div class="rm-box" onclick="this.classList.toggle('expanded')">
-                <div class="rm-box-header"><span class="rm-num" style="background:#c75b39">2</span><span class="rm-title">מינוי מנהל ייעודי לכל הקרנות</span><span class="rm-status rm-warning">⚠️ דורש הצדקה</span><span class="rm-arrow">◄</span></div>
+                <div class="rm-box-header"><span class="rm-num" style="background:#c75b39">2</span><span class="rm-title">החלת הוראות על כל הקרנות</span><span class="rm-status rm-warning">⚠️ דורש הצדקה</span><span class="rm-arrow">◄</span></div>
                 <div class="rm-box-body">
-                    <div class="rm-desc">מינוי "מנהל ייעודי" לכל הקופות, כולל אלה שאינן גרעוניות. דורש הצדקה בשלושה שלבים.</div>
-                    <div class="rm-callout rm-callout-warning"><strong>סעיף 68:</strong> מבטח שאינו יכול לקיים התחייבויותיו / ניהול לא תקין / טובת הציבור מחייבת פעולה ללא דיחוי. לא מתאים - כאן אין בעיה במבטח עצמו, אלא בתכניות הביטוח.<br><strong>סעיף 78ד(א):</strong> מינוי מנהל מיוחד בקרנות הפנסיה הוותיקות בגלל גירעון אקטוארי.<br><strong>המצב שלנו:</strong> אין קריסה ואין כשל מבטח - יש סיכון עתידי ברמת התכניות. נדרש מסלול חקיקתי חדש.</div>
-                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')" style="margin-top:8px"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> שלב א': למה המוצר לא בר-קיימא</div><div class="rm-alt-body">הצדקה מוצרית-אקטוארית. מבוסס על עובדות ונתונים היסטוריים. ראו תיבה 1 למעלה.</div></div>
-                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> שלב ב': למה לכולם - גם לקופות לא גרעוניות</div><div class="rm-alt-body">מכבי לדוגמה אינה גרעונית כלל. מדוע "להשתלט" על קופה יציבה?<br><strong>תשובה:</strong> חוסר היציבות הוא מערכתי ולא נקודתי. קופה שיציבה היום עלולה להפוך לגרעונית מחר. ההצדקה: פעולה מנע לפני קריסה, לא אחריה.</div></div>
-                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> שלב ג': למה מאחדים ולא משאירים נפרד</div><div class="rm-alt-body">זה השלב הקשה ביותר. ראו תיבה 3 להלן.</div></div>
-                    <div class="rm-callout rm-callout-danger" style="margin-top:10px"><strong>🔴 סיכון מרכזי - עתירת מבוטח מכבי:</strong><br>מבוטח בקופה יציבה ששילם פרמיות גבוהות יטען שאין הצדקה לקחת את הניהול.<br><em>תקדים: סגירת הקופות הענפיות</em></div>
+                    <div class="rm-desc">האם מחילים את ההוראות (סגירה, מעבר, מינוי מנהל) על כל 4 הקרנות, כולל אלו שאינן גירעוניות?</div>
+                    <div class="rm-callout rm-callout-warning">בקרנות הוותיקות בהסדר השאירו את קרנות היציבות.</div>
+                    <div class="rm-callout rm-callout-info" style="margin-top:6px"><strong>סעיף 68:</strong> מבטח שאינו יכול לקיים התחייבויותיו / ניהול לא תקין / טובת הציבור מחייבת פעולה ללא דיחוי. לא מתאים — כאן אין בעיה במבטח עצמו, אלא בתכניות הביטוח.<br><strong>סעיף 78ד(א):</strong> מינוי מנהל מיוחד בקרנות הפנסיה הוותיקות בגלל גירעון אקטוארי.<br><strong>המצב שלנו:</strong> אין קריסה ואין כשל מבטח — יש סיכון עתידי ברמת התכניות. נדרש מסלול חקיקתי חדש.</div>
+
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> למה גם על קופות לא גירעוניות</div><div class="rm-alt-body">מדוע להחיל הוראות על קופה יציבה?<br><strong>תשובה:</strong> חוסר היציבות הוא מערכתי ולא נקודתי. קופה שיציבה היום עלולה להפוך לגירעונית מחר. פעולת מנע לפני קריסה — לא אחריה.<br><strong>ובנוסף:</strong> למה אי אפשר להשאיר קופה אחת ולהחיל על כל היתר? בשונה מהוותיקות בהסדר, כאן יש ניהול פעיל.</div></div>
+                    <div class="rm-callout rm-callout-danger" style="margin-top:10px"><strong>🔴 סיכון מרכזי:</strong><br>מבוטח בקופה יציבה ששילם פרמיות גבוהות יטען שאין הצדקה לקחת את הניהול.</div>
                 </div>
             </div>
             <div class="rm-arrow-down">▼</div>
@@ -1302,11 +1301,11 @@ class App {
             <div class="rm-box" onclick="this.classList.toggle('expanded')">
                 <div class="rm-box-header"><span class="rm-num" style="background:#c75b39">3</span><span class="rm-title">איחוד קרנות</span><span class="rm-status rm-open">❓ פתוחה</span><span class="rm-arrow">◄</span></div>
                 <div class="rm-box-body">
-                    <div class="rm-desc">האם לאחד את כל הקרנות לאחת או לנהל בנפרד?</div>
-                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> חלופה א': איחוד מלא</div><div class="rm-alt-body">כל הקרנות מתמזגות לקרן אחת תחת ניהול אחד.<div class="rm-pros-cons"><div class="rm-pro">✓ יעילות תפעולית</div><div class="rm-con">✗ קשה להצדיק אקטוארית</div><div class="rm-pro">✓ פשטות ניהולית</div><div class="rm-con">✗ חשיפה משפטית גבוהה</div></div></div></div>
-                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> חלופה ב': Risk Allocation - איזון סיכון</div><div class="rm-alt-body">קרנות נפרדות עם מנגנון איזון סיכון ביניהן.<div class="rm-pros-cons"><div class="rm-pro">✓ שומר על זהות כל קרן</div><div class="rm-con">✗ מורכבות ניהולית</div><div class="rm-pro">✓ מפחית חשיפה משפטית</div><div class="rm-con">✗ דורש מנגנון איזון מתמיד</div></div></div></div>
-                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> חלופה ג': קרנות נפרדות, תפעול משותף</div><div class="rm-alt-body">כל קרן נשארת עצמאית אך התפעול (גבייה, תביעות, השקעות) מנוהל במשותף.<div class="rm-pros-cons"><div class="rm-pro">✓ שומר על הפרדה משפטית</div><div class="rm-con">✗ לא ניתן להשתמש בקרנות חזקות לצמצום גירעון</div><div class="rm-pro">✓ יעילות תפעולית</div><div class="rm-pro">✓ חשיפה משפטית נמוכה</div></div></div></div>
-                    <div class="rm-callout rm-callout-warning" style="margin-top:8px">קשה להצדיק איחוד קרנות</div>
+                    <div class="rm-desc">האם לאחד את כל הקרנות לאחת או לנהל בנפרד? שאלה פתוחה.</div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> חלופה א': איחוד מלא</div><div class="rm-alt-body">כל הקרנות מתמזגות לקרן אחת.<div class="rm-pros-cons"><div class="rm-pro">✓ הכי נכון אקטוארית — אוכלוסייה גדולה, פיזור סיכון מרבי</div><div class="rm-con">✗ הכי קשה משפטית — פגיעה בזכות הקניין</div><div class="rm-pro">✓ הכי פשוט לניהול</div></div></div></div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> חלופה ב': Risk Allocation — איזון סיכונים</div><div class="rm-alt-body">קרנות נפרדות, כל קרן עם הפרמיה שלה, אבל מנגנון איזון ביניהן.<div class="rm-pros-cons"><div class="rm-pro">✓ אפשר לקבוע פרמיות שונות לכל קרן</div><div class="rm-pro">✓ פחות פוגע בזכות הקניין</div></div></div></div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> חלופה ג': קרנות נפרדות לחלוטין</div><div class="rm-alt-body">כל קרן נשארת עצמאית ומתנהלת כיחידה בפני עצמה.<div class="rm-pros-cons"><div class="rm-pro">✓ פחות פוגע בזכויות</div><div class="rm-con">✗ לא משיג את התכלית — קרנות קטנות יקרסו מהר מסיבות דמוגרפיות</div><div class="rm-pro">✓ חשיפה משפטית נמוכה</div><div class="rm-con">✗ לא ניתן להשתמש בקרנות חזקות לצמצום גירעון</div></div></div></div>
+                    <div class="rm-callout rm-callout-info" style="margin-top:8px"><strong>הערה — ענפיות:</strong> הקרנות הענפיות מתנהלות בנפרד, כל אחת כיחידה בפני עצמה. לא אוחדו.</div>
                 </div>
             </div>
             <div class="rm-arrow-down">▼</div>
@@ -1314,10 +1313,10 @@ class App {
             <div class="rm-box" onclick="this.classList.toggle('expanded')">
                 <div class="rm-box-header"><span class="rm-num" style="background:#c75b39">4</span><span class="rm-title">מבנה התאגיד</span><span class="rm-status rm-open">❓ פתוחה</span><span class="rm-arrow">◄</span></div>
                 <div class="rm-box-body">
-                    <div class="rm-desc">בחירת הגוף שינהל את הקבוצה הסגורה.</div>
-                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> א. חברה ייעודית חדשה + רישיון מבטח</div><div class="rm-alt-body">הקמת ישות משפטית חדשה שתקבל רישיון מבטח ותנהל את הקרנות.<div class="rm-pros-cons"><div class="rm-pro">✓ עצמאות מלאה</div><div class="rm-con">✗ זמן הקמה ארוך</div><div class="rm-pro">✓ ללא ניגודי עניינים</div><div class="rm-con">✗ עלויות הקמה</div></div></div></div>
-                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> ב. חברת בת של "עמיתים"</div><div class="rm-alt-body">שימוש בתשתית קיימת של עמיתים.<br><div class="rm-callout rm-callout-warning" style="margin-top:4px"><strong>⚠️ בעיה:</strong> "עמיתים" אינה ישות משפטית אחת ואינה מחזיקה רישיון מבטח. צריך בכל מקרה חברת מבטח חדשה.</div></div></div>
-                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> ג. חברה ממשלתית</div><div class="rm-alt-body">הקמת חברת ביטוח ממשלתית ייעודית.<div class="rm-pros-cons"><div class="rm-pro">✓ גיבוי ממשלתי מובנה</div><div class="rm-con">✗ דורש הסכמת רשות חברות ממשלתיות</div><div class="rm-pro">✓ אמון ציבורי</div><div class="rm-con">✗ החלטת ממשלה + תקציב</div></div></div></div>
+                    <div class="rm-desc">איזה גוף ינהל את הקבוצה הסגורה.</div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> א. חברת בת של עמיתים</div><div class="rm-alt-body">שימוש בתשתית קיימת של עמיתים.<div class="rm-callout rm-callout-warning" style="margin-top:4px"><strong>⚠️ בעיה:</strong> לעמיתים אין היום רישיון מבטח. צריך להקים חברת בת חדשה עם רישיון מבטח.</div><div class="rm-callout rm-callout-info" style="margin-top:4px"><strong>קושי:</strong> נדרשת הצדקה לקבוע בחוק דווקא חברה ספציפית.</div></div></div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> ב. חברה ממשלתית</div><div class="rm-alt-body">הקמת חברת ביטוח ממשלתית לפי החלטת ממשלה.<div class="rm-pros-cons"><div class="rm-pro">✓ גיבוי ממשלתי מובנה</div><div class="rm-con">✗ פוליטיזציה — שרים ממנים את המנהלים</div><div class="rm-pro">✓ אמון ציבורי</div><div class="rm-con">✗ חוסר מומחיות ויעילות</div></div><div class="rm-callout rm-callout-info" style="margin-top:8px"><strong>ענבל:</strong> החברה הממשלתית היחידה עם מומחיות בניהול ביטוח. הפול — יש חקיקה ספציפית אבל רק לרכב חובה.</div></div></div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> ג. מכרז לחברת ביטוח פרטית</div><div class="rm-alt-body">חברת ביטוח פרטית שתיכנס דרך מכרז. לא נדרשת הקמה.<div class="rm-callout rm-callout-danger" style="margin-top:4px"><strong>קושי:</strong> ל-30 שנה זה בעייתי. דורש יציאה למכרז כל מספר שנים.</div></div></div>
                 </div>
             </div>
             <div class="rm-arrow-down">▼</div>
@@ -1333,19 +1332,19 @@ class App {
             </div>
         </div>
 
-        <!-- צעירים מתחת ל-55 -->
+        <!-- צעירים מתחת לגיל החתך -->
         <div class="roadmap-section" style="--rm-color: #0891b2">
             <div class="roadmap-section-header">
                 <h3>צעירים - מעבר למוצר חדש</h3>
-                <span class="roadmap-age-badge" style="background:#0891b2">מתחת ל-55</span>
+                <span class="roadmap-age-badge" style="background:#0891b2">מתחת לגיל החתך</span>
             </div>
 
             <div class="rm-box" onclick="this.classList.toggle('expanded')">
                 <div class="rm-box-header"><span class="rm-num" style="background:#0891b2">1</span><span class="rm-title">הקצאה מהקרן הקיימת</span><span class="rm-status rm-open">❓ פתוחה</span><span class="rm-arrow">◄</span></div>
                 <div class="rm-box-body">
-                    <div class="rm-desc">האם הצעירים מקבלים חלק מנכסי הקרן?</div>
-                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> הקצאה 80-20</div><div class="rm-alt-body">80% למבוגרים, 20% לצעירים.</div></div>
-                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> אין הקצאה</div><div class="rm-alt-body">הכל למבוגרים. צעירים מתחילים מאפס + שווי מבוטח מהמכרז.</div></div>
+                    <div class="rm-desc">האם הצעירים (מתחת לגיל החתך) מקבלים חלק מנכסי הקרן?</div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> הקצאה לפי אחוזים</div><div class="rm-alt-body">מבוגרים מהווים 20% מהאוכלוסייה. המטרה: להצדיק הגדלה של חלקם בקרן.</div></div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> אין הקצאה</div><div class="rm-alt-body">הכל למבוגרים. צעירים יקבלו סכום התחלתי בעקבות המכרז "שווי מבוטח".</div></div>
                 </div>
             </div>
             <div class="rm-arrow-down">▼</div>
@@ -1354,7 +1353,7 @@ class App {
                 <div class="rm-box-header"><span class="rm-num" style="background:#0891b2">2</span><span class="rm-title">עיקרון - הכסף שייך למבוטחים</span><span class="rm-status rm-resolved">✅ מגובש</span><span class="rm-arrow">◄</span></div>
                 <div class="rm-box-body">
                     <div class="rm-desc">הכסף שייך למבוטחים - לא לקופות, לא למדינה.</div>
-                    <div class="rm-callout rm-callout-success"><strong>תקדים:</strong> עמדת הרשות בהפרטת כללית/מאוחדת - הקופות פעלו כנאמנות.</div>                </div>
+                    <div class="rm-callout rm-callout-success"><strong>תקדים:</strong> עמדת הרשות בהפרטת הקופות הענפיות.</div>                </div>
             </div>
             <div class="rm-arrow-down">▼</div>
 
@@ -1371,8 +1370,9 @@ class App {
             <div class="rm-box" onclick="this.classList.toggle('expanded')">
                 <div class="rm-box-header"><span class="rm-num" style="background:#0891b2">4</span><span class="rm-title">בחירת מבטח - אופט-אין / אאוט</span><span class="rm-status rm-warning">⚠️ דילמה</span><span class="rm-arrow">◄</span></div>
                 <div class="rm-box-body">
-                    <div class="rm-callout rm-callout-danger"><strong>הבעיה:</strong> בחירה חופשית פוגעת בחלוקת סיכון ומשבשת מכרז.</div>
-                    <div class="rm-callout rm-callout-success" style="margin-top:6px"><strong>פתרון:</strong> שיבוץ אוטומטי + מעבר חד-פעמי בשנה ראשונה ללא אירוע מס.</div>
+                    <div class="rm-callout rm-callout-danger"><strong>הבעיה:</strong> בחירה חופשית פוגעת בחלוקת סיכון ומשבשת מכרז — אנטי-סלקציה.</div>
+                    <div class="rm-callout rm-callout-success" style="margin-top:6px"><strong>פתרון:</strong> שיבוץ אוטומטי + תקופת זמן מסוימת שמאפשרת ניוד מוגבל.</div>
+                    <div class="rm-callout rm-callout-info" style="margin-top:6px"><strong>קשר למבנה המוצר:</strong> שאלת הניוד מתחברת ישירות למבנה המוצר החדש — אם גמל, ניוד מובנה. אם ביטוח, ניוד דורש תיקון חוק.</div>
                 </div>
             </div>
             <div class="rm-arrow-down">▼</div>
@@ -1380,9 +1380,9 @@ class App {
             <div class="rm-box" onclick="this.classList.toggle('expanded')">
                 <div class="rm-box-header"><span class="rm-num" style="background:#0891b2">5</span><span class="rm-title">מבנה המוצר החדש</span><span class="rm-status rm-critical">🔴 הכרעה נדרשת</span><span class="rm-arrow">◄</span></div>
                 <div class="rm-box-body">
-                    <div class="rm-desc">המוצר הקיים = פוליסת ביטוח חיים שאינה קופת גמל ← לא ניתן לניוד. המוצר החדש חייב לאפשר ניידות.</div>
-                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> חלופה א': פוליסת חיסכון + חקיקת ניוד</div><div class="rm-alt-body">תיקון חקיקה שיאפשר ניוד בפוליסות חיסכון ביטוחיות - אירוע חקיקתי משמעותי.<div class="rm-pros-cons"><div class="rm-pro">✓ מתבסס על מוצר קיים</div><div class="rm-con">✗ שינוי חקיקתי גדול</div></div></div></div>
-                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> חלופה ב': "קופת גמל סיעוד" - מוצר חדש</div><div class="rm-alt-body">הקמת סוג מוצר חדש לגמרי שלא קיים היום. ניידות מובנית מראש.<div class="rm-pros-cons"><div class="rm-pro">✓ ניידות מובנית</div><div class="rm-con">✗ דורש חקיקה חדשה</div><div class="rm-pro">✓ מותאם לצורך</div></div></div></div>
+                    <div class="rm-desc">המוצר הקיים = פוליסת ביטוח חיים שאינה קופת גמל ← לא ניתן לניוד.</div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> חלופה א': פוליסת חיסכון + תיקון חוק לניוד</div><div class="rm-alt-body">תיקון חקיקה שיאפשר ניוד בפוליסות חיסכון.<div class="rm-pros-cons"><div class="rm-pro">✓ מתבסס על מוצר קיים — כבר בנוי</div><div class="rm-con">✗ תיבת פנדורה — פתיחת ניוד בביטוח משפיעה על כל השוק, ארביטרז'</div><div class="rm-pro">✓ עם תקנון — קל יותר לשנות זכויות ולעשות איזון</div></div></div></div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> חלופה ב': קופת גמל לסיעוד — מוצר חדש</div><div class="rm-alt-body">הקמת סוג קופת גמל חדש שלא קיים היום.<div class="rm-pros-cons"><div class="rm-pro">✓ ניוד מובנה</div><div class="rm-con">✗ צריך תיקון תקנות כיסויים ביטוחיים — היום אי אפשר לקבוע כיסוי סיעודי בגמל</div><div class="rm-pro">✓ מגדיל היצע גופים — יש חברות עם רישיון מבטח רק לגמל</div><div class="rm-pro">✓ סעיפים קיימים — כמו מגבלות הפקדה</div></div></div></div>
                     <div class="rm-callout rm-callout-danger" style="margin-top:6px"><strong>עיקרון:</strong> חייבת להיות ניידות במוצר החדש.</div>
                 </div>
             </div>
