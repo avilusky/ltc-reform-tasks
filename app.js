@@ -71,6 +71,7 @@ class App {
             tasks: 'משימות',
             calendar: 'לוח שנה',
             gantt: 'תרשים גאנט',
+            boardroom: 'חדר ישיבות',
             settings: 'בעלי עניין'
         };
         document.getElementById('pageTitle').textContent = titles[page] || '';
@@ -89,6 +90,7 @@ class App {
             case 'tasks': this.renderTasks(); break;
             case 'calendar': this.calendar.render(); break;
             case 'gantt': this.gantt.render(); break;
+            case 'boardroom': this.renderBoardroom(); break;
             case 'settings': this.renderSettings(); break;
         }
     }
@@ -1195,6 +1197,207 @@ class App {
     getSelectedStakeholders() {
         const checked = document.querySelectorAll('#stakeholdersOptions input:checked');
         return [...checked].map(cb => cb.value);
+    }
+
+    // === Boardroom Page ===
+    renderBoardroom() {
+        const grid = document.getElementById('boardroomGrid');
+        const viewer = document.getElementById('boardroomViewer');
+
+        // Show grid, hide viewer
+        grid.style.display = '';
+        viewer.style.display = 'none';
+
+        const items = [
+            {
+                id: 'roadmap',
+                title: 'מפת דרכים',
+                desc: 'תרשים עץ ההחלטות - מבוגרים וצעירים, חלופות, סוגיות משפטיות והמלצות',
+                icon: '🗺️',
+                date: new Date().toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' }),
+                color: '#2563eb'
+            }
+        ];
+
+        let html = '';
+        items.forEach(item => {
+            html += `
+                <div class="boardroom-card" onclick="app.openBoardroomItem('${item.id}')" style="--br-color: ${item.color}">
+                    <div class="boardroom-card-icon">${item.icon}</div>
+                    <div class="boardroom-card-info">
+                        <div class="boardroom-card-title">${item.title}</div>
+                        <div class="boardroom-card-desc">${item.desc}</div>
+                        <div class="boardroom-card-date">${item.date}</div>
+                    </div>
+                </div>
+            `;
+        });
+
+        grid.innerHTML = html;
+    }
+
+    openBoardroomItem(id) {
+        const grid = document.getElementById('boardroomGrid');
+        const viewer = document.getElementById('boardroomViewer');
+        const content = document.getElementById('boardroomContent');
+
+        grid.style.display = 'none';
+        viewer.style.display = '';
+
+        if (id === 'roadmap') {
+            content.innerHTML = this.getRoadmapHTML();
+        }
+    }
+
+    closeBoardroomItem() {
+        this.renderBoardroom();
+    }
+
+    getRoadmapHTML() {
+        return `
+<div class="roadmap-container">
+    <div class="roadmap-top-bar">
+        <button class="rm-action-btn" onclick="app.closeBoardroomItem()">→ חזרה לחדר ישיבות</button>
+        <div class="roadmap-top-title-group">
+            <h2 class="roadmap-top-title">🗺️ מפת דרכים</h2>
+            <div class="roadmap-subtitle">${new Date().toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+        </div>
+        <div class="roadmap-top-actions">
+            <button class="rm-action-btn" onclick="app.roadmapExpandAll()">📂 הרחב הכל</button>
+            <button class="rm-action-btn" onclick="app.roadmapCollapseAll()">📁 כווץ הכל</button>
+        </div>
+    </div>
+
+    <div class="roadmap-columns">
+        <!-- מבוגרים 55+ -->
+        <div class="roadmap-section" style="--rm-color: #c75b39">
+            <div class="roadmap-section-header">
+                <h3>מבוגרים - הקבוצה הסגורה</h3>
+                <span class="roadmap-age-badge" style="background:#c75b39">55+</span>
+            </div>
+
+            <div class="rm-box" onclick="this.classList.toggle('expanded')">
+                <div class="rm-box-header"><span class="rm-num" style="background:#c75b39">1</span><span class="rm-title">הצדקה - המוצר לא בר-קיימא</span><span class="rm-status rm-resolved">✅ חזקה</span><span class="rm-arrow">◄</span></div>
+                <div class="rm-box-body">
+                    <div class="rm-desc">ביסוס עובדתי לכך שהמודל הקיים אינו בר-קיימא לטווח ארוך.</div>
+                    <div class="rm-callout rm-callout-success"><strong>נקודות ביסוס:</strong><br>• דוח מבקר המדינה<br>• חוסר יציבות היסטורי<br>• אי-ודאות אקטוארית 30+ שנה<br>• אוריינות מבוטחים גוברת</div>
+                    <div class="rm-callout rm-callout-info" style="margin-top:6px"><strong>הערה אקטוארית:</strong> ניתן לבסס היסטורית אך קשה להציג תחזית שלילית.</div>
+                </div>
+            </div>
+            <div class="rm-arrow-down">▼</div>
+
+            <div class="rm-box" onclick="this.classList.toggle('expanded')">
+                <div class="rm-box-header"><span class="rm-num" style="background:#c75b39">2</span><span class="rm-title">מינוי מנהל ייעודי לכל הקרנות</span><span class="rm-status rm-warning">⚠️ דורש הצדקה</span><span class="rm-arrow">◄</span></div>
+                <div class="rm-box-body">
+                    <div class="rm-desc">מינוי "מנהל ייעודי" לכל הקופות, כולל אלה שאינן גרעוניות. דורש הצדקה בשלושה שלבים.</div>
+                    <div class="rm-callout rm-callout-warning"><strong>סעיף 68:</strong> מבטח שאינו יכול לקיים התחייבויותיו / ניהול לא תקין / טובת הציבור מחייבת פעולה ללא דיחוי. לא מתאים - כאן אין בעיה במבטח עצמו, אלא בתכניות הביטוח.<br><strong>סעיף 78ד(א):</strong> מינוי מנהל מיוחד בקרנות הפנסיה הוותיקות בגלל גירעון אקטוארי.<br><strong>המצב שלנו:</strong> אין קריסה ואין כשל מבטח - יש סיכון עתידי ברמת התכניות. נדרש מסלול חקיקתי חדש.</div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')" style="margin-top:8px"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> שלב א': למה המוצר לא בר-קיימא</div><div class="rm-alt-body">הצדקה מוצרית-אקטוארית. מבוסס על עובדות ונתונים היסטוריים. ראו תיבה 1 למעלה.</div></div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> שלב ב': למה לכולם - גם לקופות לא גרעוניות</div><div class="rm-alt-body">מכבי לדוגמה אינה גרעונית כלל. מדוע "להשתלט" על קופה יציבה?<br><strong>תשובה:</strong> חוסר היציבות הוא מערכתי ולא נקודתי. קופה שיציבה היום עלולה להפוך לגרעונית מחר. ההצדקה: פעולה מנע לפני קריסה, לא אחריה.</div></div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> שלב ג': למה מאחדים ולא משאירים נפרד</div><div class="rm-alt-body">זה השלב הקשה ביותר. ראו תיבה 3 להלן.</div></div>
+                    <div class="rm-callout rm-callout-danger" style="margin-top:10px"><strong>🔴 סיכון מרכזי - עתירת מבוטח מכבי:</strong><br>מבוטח בקופה יציבה ששילם פרמיות גבוהות יטען שאין הצדקה לקחת את הניהול.<br><em>תקדים: סגירת הקופות הענפיות</em></div>
+                </div>
+            </div>
+            <div class="rm-arrow-down">▼</div>
+
+            <div class="rm-box" onclick="this.classList.toggle('expanded')">
+                <div class="rm-box-header"><span class="rm-num" style="background:#c75b39">3</span><span class="rm-title">איחוד קרנות</span><span class="rm-status rm-open">❓ פתוחה</span><span class="rm-arrow">◄</span></div>
+                <div class="rm-box-body">
+                    <div class="rm-desc">האם לאחד את כל הקרנות לאחת או לנהל בנפרד?</div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> חלופה א': איחוד מלא</div><div class="rm-alt-body">כל הקרנות מתמזגות לקרן אחת תחת ניהול אחד.<div class="rm-pros-cons"><div class="rm-pro">✓ יעילות תפעולית</div><div class="rm-con">✗ קשה להצדיק אקטוארית</div><div class="rm-pro">✓ פשטות ניהולית</div><div class="rm-con">✗ חשיפה משפטית גבוהה</div></div></div></div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> חלופה ב': Risk Allocation - איזון סיכון</div><div class="rm-alt-body">קרנות נפרדות עם מנגנון איזון סיכון ביניהן.<div class="rm-pros-cons"><div class="rm-pro">✓ שומר על זהות כל קרן</div><div class="rm-con">✗ מורכבות ניהולית</div><div class="rm-pro">✓ מפחית חשיפה משפטית</div><div class="rm-con">✗ דורש מנגנון איזון מתמיד</div></div></div></div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> חלופה ג': קרנות נפרדות, תפעול משותף</div><div class="rm-alt-body">כל קרן נשארת עצמאית אך התפעול (גבייה, תביעות, השקעות) מנוהל במשותף.<div class="rm-pros-cons"><div class="rm-pro">✓ שומר על הפרדה משפטית</div><div class="rm-con">✗ לא ניתן להשתמש בקרנות חזקות לצמצום גירעון</div><div class="rm-pro">✓ יעילות תפעולית</div><div class="rm-pro">✓ חשיפה משפטית נמוכה</div></div></div></div>
+                    <div class="rm-callout rm-callout-warning" style="margin-top:8px">קשה להצדיק איחוד קרנות</div>
+                </div>
+            </div>
+            <div class="rm-arrow-down">▼</div>
+
+            <div class="rm-box" onclick="this.classList.toggle('expanded')">
+                <div class="rm-box-header"><span class="rm-num" style="background:#c75b39">4</span><span class="rm-title">מבנה התאגיד</span><span class="rm-status rm-open">❓ פתוחה</span><span class="rm-arrow">◄</span></div>
+                <div class="rm-box-body">
+                    <div class="rm-desc">בחירת הגוף שינהל את הקבוצה הסגורה.</div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> א. חברה ייעודית חדשה + רישיון מבטח</div><div class="rm-alt-body">הקמת ישות משפטית חדשה שתקבל רישיון מבטח ותנהל את הקרנות.<div class="rm-pros-cons"><div class="rm-pro">✓ עצמאות מלאה</div><div class="rm-con">✗ זמן הקמה ארוך</div><div class="rm-pro">✓ ללא ניגודי עניינים</div><div class="rm-con">✗ עלויות הקמה</div></div></div></div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> ב. חברת בת של "עמיתים"</div><div class="rm-alt-body">שימוש בתשתית קיימת של עמיתים.<br><div class="rm-callout rm-callout-warning" style="margin-top:4px"><strong>⚠️ בעיה:</strong> "עמיתים" אינה ישות משפטית אחת ואינה מחזיקה רישיון מבטח. צריך בכל מקרה חברת מבטח חדשה.</div></div></div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> ג. חברה ממשלתית</div><div class="rm-alt-body">הקמת חברת ביטוח ממשלתית ייעודית.<div class="rm-pros-cons"><div class="rm-pro">✓ גיבוי ממשלתי מובנה</div><div class="rm-con">✗ דורש הסכמת רשות חברות ממשלתיות</div><div class="rm-pro">✓ אמון ציבורי</div><div class="rm-con">✗ החלטת ממשלה + תקציב</div></div></div></div>
+                </div>
+            </div>
+            <div class="rm-arrow-down">▼</div>
+
+            <div class="rm-box" onclick="this.classList.toggle('expanded')">
+                <div class="rm-box-header"><span class="rm-num" style="background:#c75b39">5</span><span class="rm-title">סיוע ממשלתי</span><span class="rm-status rm-open">❓ פתוחה</span><span class="rm-arrow">◄</span></div>
+                <div class="rm-box-body">
+                    <div class="rm-desc">מנגנון הסיוע הממשלתי לקבוצה הסגורה.</div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> חלופה א': סיוע ישיר - סכום קבוע מראש</div><div class="rm-alt-body">סכום קבוע (למשל X מיליארד ש"ח) שנכנס למאזני הקרן בפריסה עד לסוף חייה.<div class="rm-pros-cons"><div class="rm-pro">✓ ודאות לקרן ולמנהל</div><div class="rm-con">✗ בעיה תמריצית</div><div class="rm-pro">✓ פשטות ניהולית</div><div class="rm-con">✗ עלות גבוהה למדינה מראש</div></div></div></div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> חלופה ב': כרית ביטחון עקיפה - לפי מדדים</div><div class="rm-alt-body">סיוע מותנה שמופעל לפי מדדים אובייקטיביים: עקום ריבית, אישורי תביעות, הזדקנות אוכלוסייה. הכסף עובר רק כשנגמר הכסף בקרן, לא לפני. המדינה רושמת בספרים אך לא מעבירה בפועל עד שצריך.<div class="rm-pros-cons"><div class="rm-pro">✓ חוסך כסף למדינה</div><div class="rm-con">✗ אי-ודאות למנהל הקרן</div><div class="rm-pro">✓ מדדים אובייקטיביים</div><div class="rm-con">✗ מורכבות בהגדרת המדדים</div></div></div></div>
+                    <div class="rm-tags"><span class="rm-tag">🏛️ אגף תקציבים</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- צעירים מתחת ל-55 -->
+        <div class="roadmap-section" style="--rm-color: #0891b2">
+            <div class="roadmap-section-header">
+                <h3>צעירים - מעבר למוצר חדש</h3>
+                <span class="roadmap-age-badge" style="background:#0891b2">מתחת ל-55</span>
+            </div>
+
+            <div class="rm-box" onclick="this.classList.toggle('expanded')">
+                <div class="rm-box-header"><span class="rm-num" style="background:#0891b2">1</span><span class="rm-title">הקצאה מהקרן הקיימת</span><span class="rm-status rm-open">❓ פתוחה</span><span class="rm-arrow">◄</span></div>
+                <div class="rm-box-body">
+                    <div class="rm-desc">האם הצעירים מקבלים חלק מנכסי הקרן?</div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> הקצאה 80-20</div><div class="rm-alt-body">80% למבוגרים, 20% לצעירים.</div></div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> אין הקצאה</div><div class="rm-alt-body">הכל למבוגרים. צעירים מתחילים מאפס + שווי מבוטח מהמכרז.</div></div>
+                </div>
+            </div>
+            <div class="rm-arrow-down">▼</div>
+
+            <div class="rm-box" onclick="this.classList.toggle('expanded')">
+                <div class="rm-box-header"><span class="rm-num" style="background:#0891b2">2</span><span class="rm-title">עיקרון - הכסף שייך למבוטחים</span><span class="rm-status rm-resolved">✅ מגובש</span><span class="rm-arrow">◄</span></div>
+                <div class="rm-box-body">
+                    <div class="rm-desc">הכסף שייך למבוטחים - לא לקופות, לא למדינה.</div>
+                    <div class="rm-callout rm-callout-success"><strong>תקדים:</strong> עמדת הרשות בהפרטת כללית/מאוחדת - הקופות פעלו כנאמנות.</div>                </div>
+            </div>
+            <div class="rm-arrow-down">▼</div>
+
+            <div class="rm-box" onclick="this.classList.toggle('expanded')">
+                <div class="rm-box-header"><span class="rm-num" style="background:#0891b2">3</span><span class="rm-title">מכרז להעברת מבוטחים</span><span class="rm-status rm-open">❓ פתוחה</span><span class="rm-arrow">◄</span></div>
+                <div class="rm-box-body">
+                    <div class="rm-desc">חברות ביטוח מתחרות על קליטת הצעירים למוצר החדש.</div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> שיטת קביעת מחיר</div><div class="rm-alt-body"><div class="rm-callout rm-callout-warning" style="margin-top:8px"><strong>שאלה:</strong> האם הרשות קובעת את השווי והחברות מציעות?</div></div></div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> חלוקת מבוטחים</div><div class="rm-alt-body"><div class="rm-callout rm-callout-warning"><strong>שאלות:</strong> הגבלת מספר / אחוז מבוטחים לחברה. חלוקה לפי ת"ז / הגרלה.</div></div></div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> מי עורך מכרז</div><div class="rm-alt-body">הקופות (בהוראת חוק) או הרשות ישירות.</div></div>                </div>
+            </div>
+            <div class="rm-arrow-down">▼</div>
+
+            <div class="rm-box" onclick="this.classList.toggle('expanded')">
+                <div class="rm-box-header"><span class="rm-num" style="background:#0891b2">4</span><span class="rm-title">בחירת מבטח - אופט-אין / אאוט</span><span class="rm-status rm-warning">⚠️ דילמה</span><span class="rm-arrow">◄</span></div>
+                <div class="rm-box-body">
+                    <div class="rm-callout rm-callout-danger"><strong>הבעיה:</strong> בחירה חופשית פוגעת בחלוקת סיכון ומשבשת מכרז.</div>
+                    <div class="rm-callout rm-callout-success" style="margin-top:6px"><strong>פתרון:</strong> שיבוץ אוטומטי + מעבר חד-פעמי בשנה ראשונה ללא אירוע מס.</div>
+                </div>
+            </div>
+            <div class="rm-arrow-down">▼</div>
+
+            <div class="rm-box" onclick="this.classList.toggle('expanded')">
+                <div class="rm-box-header"><span class="rm-num" style="background:#0891b2">5</span><span class="rm-title">מבנה המוצר החדש</span><span class="rm-status rm-critical">🔴 הכרעה נדרשת</span><span class="rm-arrow">◄</span></div>
+                <div class="rm-box-body">
+                    <div class="rm-desc">המוצר הקיים = פוליסת ביטוח חיים שאינה קופת גמל ← לא ניתן לניוד. המוצר החדש חייב לאפשר ניידות.</div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> חלופה א': פוליסת חיסכון + חקיקת ניוד</div><div class="rm-alt-body">תיקון חקיקה שיאפשר ניוד בפוליסות חיסכון ביטוחיות - אירוע חקיקתי משמעותי.<div class="rm-pros-cons"><div class="rm-pro">✓ מתבסס על מוצר קיים</div><div class="rm-con">✗ שינוי חקיקתי גדול</div></div></div></div>
+                    <div class="rm-alt" onclick="event.stopPropagation(); this.classList.toggle('expanded')"><div class="rm-alt-title"><span class="rm-alt-arrow">◄</span> חלופה ב': "קופת גמל סיעוד" - מוצר חדש</div><div class="rm-alt-body">הקמת סוג מוצר חדש לגמרי שלא קיים היום. ניידות מובנית מראש.<div class="rm-pros-cons"><div class="rm-pro">✓ ניידות מובנית</div><div class="rm-con">✗ דורש חקיקה חדשה</div><div class="rm-pro">✓ מותאם לצורך</div></div></div></div>
+                    <div class="rm-callout rm-callout-danger" style="margin-top:6px"><strong>עיקרון:</strong> חייבת להיות ניידות במוצר החדש.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>`;
+    }
+
+    roadmapExpandAll() {
+        document.querySelectorAll('#boardroomContent .rm-box, #boardroomContent .rm-alt').forEach(el => el.classList.add('expanded'));
+    }
+
+    roadmapCollapseAll() {
+        document.querySelectorAll('#boardroomContent .rm-box, #boardroomContent .rm-alt').forEach(el => el.classList.remove('expanded'));
     }
 
     // === Stakeholders Page ===
