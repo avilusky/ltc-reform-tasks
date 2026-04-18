@@ -91,7 +91,7 @@ class Store {
         // Set up real-time listeners (serves as both initial load AND ongoing sync)
         // onSnapshot fires once immediately with current data = 2 reads total
         if (this.useFirebase) {
-            this.setupRealtimeListeners();
+            authReady.then(() => this.setupRealtimeListeners());
         }
     }
 

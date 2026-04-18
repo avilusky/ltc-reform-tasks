@@ -19,6 +19,13 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 auth.signInAnonymously().catch(err => console.warn('Auth error:', err));
 
+// authReady: resolves once anonymous user is confirmed — store.js waits on this
+const authReady = new Promise(resolve => {
+    const unsubscribe = auth.onAuthStateChanged(user => {
+        if (user) { unsubscribe(); resolve(user); }
+    });
+});
+
 // Initialize Firestore with offline persistence (reduces reads dramatically)
 const db = firebase.firestore();
 db.enablePersistence({ synchronizeTabs: true }).catch(err => {
