@@ -15,6 +15,10 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
+// Initialize Auth - silent anonymous sign-in (no UI, no user interaction)
+const auth = firebase.auth();
+auth.signInAnonymously().catch(err => console.warn('Auth error:', err));
+
 // Initialize Firestore with offline persistence (reduces reads dramatically)
 const db = firebase.firestore();
 db.enablePersistence({ synchronizeTabs: true }).catch(err => {
