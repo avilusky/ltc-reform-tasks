@@ -1214,7 +1214,15 @@ class App {
                 title: 'מפת דרכים',
                 desc: 'תרשים עץ ההחלטות - מבוגרים וצעירים, חלופות, סוגיות משפטיות והמלצות',
                 icon: '🗺️',
-                date: new Date().toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' }),
+                date: '16 באפריל 2026',
+                color: '#2563eb'
+            },
+            {
+                id: 'corporate-structure',
+                title: 'תאגיד, איחוד קרנות, OPT OUT',
+                desc: 'מבנה תאגידי · איחוד קרנות · OPT IN / OPT OUT במוצר החדש',
+                icon: '🏛️',
+                date: '29 באפריל 2026',
                 color: '#2563eb'
             }
         ];
@@ -1246,6 +1254,8 @@ class App {
 
         if (id === 'roadmap') {
             content.innerHTML = this.getRoadmapHTML();
+        } else if (id === 'corporate-structure') {
+            content.innerHTML = this.getCorporateStructureHTML();
         }
     }
 
@@ -1390,6 +1400,402 @@ class App {
     </div>
 
 </div>`;
+    }
+
+    getCorporateStructureHTML() {
+        return `
+<style>
+.cs-container { padding: 24px; max-width: 1400px; margin: 0 auto; direction: rtl; }
+.cs-top-bar { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid #e5e7eb; }
+.cs-title-group { text-align:center; flex:1; }
+.cs-title { font-size: 26px; font-weight: 800; color:#111827; margin:0; }
+.cs-subtitle { font-size: 14px; color:#6b7280; margin:4px 0 0; }
+.cs-tabs { display:flex; gap:0; margin-bottom:24px; border-bottom:2px solid #e5e7eb; }
+.cs-tab { padding:12px 22px; background:transparent; border:none; border-bottom:2px solid transparent; margin-bottom:-2px; cursor:pointer; font-size:14px; font-weight:600; color:#64748b; transition:all 0.15s; font-family:inherit; }
+.cs-tab:hover { color:#2563eb; }
+.cs-tab.active { color:#2563eb; border-bottom-color:#2563eb; }
+.cs-tab-icon { margin-left:6px; }
+.cs-tab-pane { display:none; }
+.cs-tab-pane.active { display:block; }
+.cs-section-title { font-size:18px; font-weight:800; color:#1e3a8a; margin:0 0 6px; }
+.cs-section-sub { font-size:13.5px; color:#6b7280; margin:0 0 18px; }
+.cs-options-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; margin-bottom:20px; }
+@media (max-width:1100px){ .cs-options-grid{grid-template-columns:1fr;} }
+.cs-option-card { background:white; border-radius:12px; border:1px solid #e5e7eb; box-shadow:0 1px 3px rgba(0,0,0,0.05); overflow:hidden; display:flex; flex-direction:column; }
+.cs-option-header { padding:14px 16px; border-bottom:1px solid #f3f4f6; display:flex; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(180deg,#f8fafc 0%, #eff6ff 100%); }
+.cs-option-name { font-size:15px; font-weight:800; color:#1e3a8a; }
+.cs-rank { font-size:11px; padding:4px 10px; border-radius:999px; font-weight:700; letter-spacing:.04em; }
+.cs-rank-1 { background:#d1fae5; color:#065f46; }
+.cs-rank-2 { background:#fef3c7; color:#92400e; }
+.cs-rank-3 { background:#fee2e2; color:#991b1b; }
+.cs-option-body { padding:14px 16px; flex:1; }
+.cs-option-desc { font-size:13px; color:#374151; line-height:1.6; margin-bottom:12px; }
+.cs-pc-block { margin-bottom:10px; }
+.cs-pc-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }
+.cs-pc-title.pros { color:#047857; }
+.cs-pc-title.cons { color:#b91c1c; }
+.cs-pc-title.justify { color:#1d4ed8; }
+.cs-pc-list { margin:0; padding:0; list-style:none; font-size:12.5px; line-height:1.65; }
+.cs-pc-list.pros li { color:#065f46; }
+.cs-pc-list.cons li { color:#991b1b; }
+.cs-pc-list.justify li { color:#1e40af; }
+.cs-flow { background:white; border-radius:12px; border:1px solid #e5e7eb; padding:20px; }
+.cs-flow-step { display:flex; gap:14px; padding:14px 0; border-bottom:1px dashed #e5e7eb; }
+.cs-flow-step:last-child { border-bottom:none; }
+.cs-flow-num { flex-shrink:0; width:36px; height:36px; line-height:36px; text-align:center; background:#2563eb; color:white; border-radius:50%; font-weight:700; }
+.cs-flow-content { flex:1; }
+.cs-flow-title { font-size:14.5px; font-weight:700; color:#111827; margin-bottom:4px; }
+.cs-flow-desc { font-size:13px; color:#4b5563; line-height:1.6; }
+.cs-table-wrap { background:white; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,0.06); overflow:hidden; border:1px solid #e5e7eb; }
+.cs-table { width:100%; border-collapse:collapse; }
+.cs-table thead th { background:#f3f4f6; color:#374151; font-weight:700; font-size:13px; padding:14px 16px; text-align:right; border-bottom:2px solid #e5e7eb; letter-spacing:.02em; }
+.cs-table tbody tr.cs-row-main { transition: background 0.15s; }
+.cs-table tbody tr.cs-row-main:hover { background:#fafbff; }
+.cs-table tbody td { padding:16px; vertical-align:top; border-bottom:1px solid #f3f4f6; font-size:13.5px; line-height:1.65; color:#374151; }
+.cs-type-cell { font-weight:700; font-size:15px; color:#111827; white-space:nowrap; min-width:160px; }
+.cs-type-icon { display:inline-block; width:32px; height:32px; line-height:32px; text-align:center; border-radius:8px; margin-left:8px; vertical-align:middle; font-size:18px; }
+.cs-pros-list, .cs-cons-list { margin:0; padding:0; list-style:none; }
+.cs-pros-list li { color:#047857; padding:2px 0; }
+.cs-pros-list li::before { content:"✓ "; font-weight:700; }
+.cs-cons-list li { color:#b91c1c; padding:2px 0; }
+.cs-cons-list li::before { content:"✗ "; font-weight:700; }
+.cs-examples-cell { min-width:180px; }
+.cs-chip { display:inline-flex; align-items:center; gap:4px; padding:6px 12px; background:#eff6ff; border:1px solid #bfdbfe; color:#1d4ed8; border-radius:999px; cursor:pointer; margin:3px 3px 3px 0; font-size:13px; font-weight:600; transition: all 0.15s; user-select:none; }
+.cs-chip::before { content:'▸'; font-size:9px; transition:transform 0.2s; opacity:.6; }
+.cs-chip:hover { background:#dbeafe; transform: translateY(-1px); }
+.cs-chip.active { background:#2563eb; color:white; border-color:#2563eb; box-shadow:0 2px 6px rgba(37,99,235,0.3); }
+.cs-chip.active::before { transform:rotate(90deg); opacity:1; }
+.cs-chip.no-example { background:#f9fafb; color:#9ca3af; border:1px dashed #d1d5db; cursor:default; font-weight:500; }
+.cs-chip.no-example::before { display:none; }
+.cs-chip.no-example:hover { background:#f9fafb; transform:none; }
+.cs-detail-row { display:none; }
+.cs-detail-row.expanded { display:table-row; }
+.cs-detail-cell { padding:0 !important; background:transparent; }
+.cs-detail-inner { background: linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%); border-right:4px solid var(--cs-accent, #2563eb); padding:18px 24px; margin:0; }
+.cs-detail-header { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.cs-detail-name { font-size:16px; font-weight:800; color:#1e3a8a; }
+.cs-detail-badge { font-size:11px; padding:3px 8px; background:rgba(37,99,235,0.12); color:#1e40af; border-radius:999px; font-weight:600; }
+.cs-detail-desc { font-size:13.5px; color:#374151; line-height:1.7; margin-bottom:12px; }
+.cs-detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.cs-detail-col { background:white; border-radius:8px; padding:12px 14px; border:1px solid #dbeafe; }
+.cs-detail-col-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; }
+.cs-detail-col.cs-pros .cs-detail-col-title { color:#047857; }
+.cs-detail-col.cs-cons .cs-detail-col-title { color:#b91c1c; }
+.cs-detail-col ul { margin:0; padding:0; list-style:none; font-size:13px; line-height:1.7; }
+.cs-detail-col.cs-pros li { color:#065f46; }
+.cs-detail-col.cs-cons li { color:#991b1b; }
+@media (max-width:900px){ .cs-detail-grid{grid-template-columns:1fr;} .cs-table thead{display:none;} }
+</style>
+
+<div class="cs-container">
+    <div class="cs-top-bar">
+        <button class="rm-action-btn" onclick="app.closeBoardroomItem()">→ חזרה לחדר ישיבות</button>
+        <div class="cs-title-group">
+            <h2 class="cs-title">🏛️ תאגיד, איחוד קרנות, OPT OUT</h2>
+            <p class="cs-subtitle">חלופות מבנה תאגידי, איחוד קרנות, ומתווה צירוף מבוטחים למוצר החדש</p>
+        </div>
+        <div style="width:180px"></div>
+    </div>
+
+    <div class="cs-tabs" role="tablist">
+        <button class="cs-tab active" onclick="csSwitchTab(this,'cs-pane-structure')"><span class="cs-tab-icon">🏛️</span>מבנה תאגידי</button>
+        <button class="cs-tab" onclick="csSwitchTab(this,'cs-pane-merge')"><span class="cs-tab-icon">🔗</span>איחוד קרנות</button>
+        <button class="cs-tab" onclick="csSwitchTab(this,'cs-pane-optin')"><span class="cs-tab-icon">🎯</span>OPT IN / OPT OUT</button>
+    </div>
+
+    <!-- ============ טאב 1: מבנה תאגידי ============ -->
+    <div class="cs-tab-pane active" id="cs-pane-structure">
+    <h3 class="cs-section-title">השוואת חלופות לגוף שינהל את הקבוצה הסגורה</h3>
+    <p class="cs-section-sub">לחיצה על דוגמה פותחת פירוט ספציפי לאותה דוגמה.</p>
+    <div class="cs-table-wrap">
+        <table class="cs-table">
+            <thead>
+                <tr>
+                    <th style="width:18%">סוג</th>
+                    <th style="width:28%">הסבר</th>
+                    <th style="width:20%">יתרונות</th>
+                    <th style="width:20%">חסרונות</th>
+                    <th style="width:14%">דוגמאות</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 1. תאגיד סטטוטורי -->
+                <tr class="cs-row-main">
+                    <td class="cs-type-cell"><span class="cs-type-icon" style="background:#d1fae5">📜</span>תאגיד סטטוטורי<div style="margin-top:6px"><span class="cs-rank cs-rank-1">מועדף</span></div></td>
+                    <td>תאגיד שמוקם בחקיקה ראשית ייעודית, "דינו כדין מדינה". לא נדרש להעבירו דרך רשות החברות הממשלתיות, אין דרישת הון עצמי פורמלית, וניתן לעצב את כל המבנה בחוק עצמו (מי ממנה, איך ממנה, סמכויות פיקוח, מימון).</td>
+                    <td><ul class="cs-pros-list"><li>מבנה ידוע ומוכר — תקדים מוצלח של 30 שנה</li><li>אין צורך ברשות החברות הממשלתיות</li><li>השר (לא הממונה) ממנה את היו״ר — שליטה ממשלתית</li><li>חל אוטומטית: חוק מבקר המדינה, חובת מכרזים</li><li>פשטות הקמה יחסית</li><li>מוציא את חברות הביטוח וקופות החולים מהמשוואה הניהולית</li></ul></td>
+                    <td><ul class="cs-cons-list"><li>חוק חוזה הביטוח לא חל אוטומטית — צריך לעגן בחוק החדש</li><li>חוק הפיקוח לא חל אוטומטית</li><li>בקרנית הקיימת: הוראות הרשות מתקבלות ב"רצון טוב"</li><li>סמכויות פיקוח של הרשות מצומצמות (חובת מסירת דוחות בלבד)</li></ul></td>
+                    <td class="cs-examples-cell">
+                        <span class="cs-chip" onclick="csToggleExample(this,'stat-karnit')">קרנית</span>
+                    </td>
+                </tr>
+                <tr class="cs-detail-row" id="cs-detail-stat-karnit">
+                    <td colspan="5" class="cs-detail-cell">
+                        <div class="cs-detail-inner" style="--cs-accent:#059669">
+                            <div class="cs-detail-header">
+                                <span class="cs-detail-name">קרנית</span>
+                                <span class="cs-detail-badge">דוגמה — תאגיד סטטוטורי</span>
+                            </div>
+                            <div class="cs-detail-desc"><strong>בסיס משפטי:</strong> סעיף 10 לחוק הפיצויים לנפגעי תאונות דרכים. הוקמה בחקיקה ראשית.<br><strong>תיאור:</strong> תאגיד סטטוטורי מובהק. ממומנת ב-1% מהפרמיה ברכב חובה (~70-75 מ׳ ש״ח/שנה). משלמת תביעות בלבד — אינה גובה פרמיות. שר האוצר ממנה את היו״ר ואת הדירקטוריון. מבטחת דה-פקטו (אינה בעלת רישיון מבטח).</div>
+                            <div class="cs-detail-grid">
+                                <div class="cs-detail-col cs-pros"><div class="cs-detail-col-title">יתרונות קרנית</div><ul><li>תקדים מוצלח לאורך 30 שנה</li><li>מימון מובנה דרך הפרמיה</li><li>שליטה ממשלתית ברורה (השר ממנה יו״ר)</li><li>פטור מרשות החברות הממשלתיות</li></ul></div>
+                                <div class="cs-detail-col cs-cons"><div class="cs-detail-col-title">חסרונות קרנית</div><ul><li>חוק חוזה הביטוח / חוק הפיקוח לא חלים</li><li>הוראות הרשות מתקבלות ב"רצון טוב"</li><li>"מצפצפת על הרשות" (ציטוט ודיע)</li><li>חובת מסירת דוחות בלבד</li></ul></div>
+                            </div>
+                            <div class="cs-detail-desc" style="margin-top:10px"><strong>סוגיות לבדיקה:</strong> בחוק החדש לעגן מפורשות — החלת חוק חוזה ביטוח, חוק הפיקוח, סמכויות פיקוח מלאות, מינוי דירקטורים, דרישות הון עצמי. גביית פרמיות ע״י קופות החולים. מבנה הדירקטוריון, נציג רשות, נציג משפטים.</div>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- 2. חברה ממשלתית -->
+                <tr class="cs-row-main">
+                    <td class="cs-type-cell"><span class="cs-type-icon" style="background:#dbeafe">🏛️</span>חברה ממשלתית</td>
+                    <td>חברה שהוקמה לפי חוק החברות הממשלתיות. כפופה לפיקוח של רשות החברות הממשלתיות, מינויים דרך השר, ודרישות הון עצמי.</td>
+                    <td><ul class="cs-pros-list"><li>תשתית רגולטורית קיימת (ענבל, עמיתים)</li><li>ניסיון מוכח בניהול ביטוח / קרנות</li></ul></td>
+                    <td><ul class="cs-cons-list"><li>כפיפות לרשות החברות הממשלתיות — חסמי הקמה ופיקוח</li><li>מצב פוליטי בעייתי — מינויים תקועים, רעש סביב חברות ממשלתיות</li><li>מורכבות הקמה</li><li>ודיע: "לא יעבור את משרד המשפטים"</li></ul></td>
+                    <td class="cs-examples-cell">
+                        <span class="cs-chip" onclick="csToggleExample(this,'gov-inbal')">ענבל</span>
+                        <span class="cs-chip" onclick="csToggleExample(this,'gov-amitim')">עמיתים</span>
+                    </td>
+                </tr>
+                <tr class="cs-detail-row" id="cs-detail-gov-inbal">
+                    <td colspan="5" class="cs-detail-cell">
+                        <div class="cs-detail-inner" style="--cs-accent:#2563eb">
+                            <div class="cs-detail-header">
+                                <span class="cs-detail-name">ענבל</span>
+                                <span class="cs-detail-badge">דוגמה — חברה ממשלתית</span>
+                            </div>
+                            <div class="cs-detail-desc"><strong>בסיס משפטי:</strong> חברה ממשלתית רגילה. רישיון מבטח לחלק מתחומיה. חקיקה ספציפית רק לרכב חובה (לבדיקה).<br><strong>תיאור:</strong> החברה הממשלתית היחידה עם מומחיות בניהול ביטוח. מטפלת בנכסי המדינה, רכב חובה ממשלתי וכו׳. עובדת מול החשב הכללי.</div>
+                            <div class="cs-detail-grid">
+                                <div class="cs-detail-col cs-pros"><div class="cs-detail-col-title">יתרונות ענבל</div><ul><li>מומחיות קיימת בניהול ביטוח</li><li>תשתית פעילה</li><li>מנגנון פיקוח מבוסס מול החשכ״ל</li></ul></div>
+                                <div class="cs-detail-col cs-cons"><div class="cs-detail-col-title">חסרונות ענבל</div><ul><li>כפיפות לרשות החברות הממשלתיות</li><li>מצב פוליטי בעייתי, הרבה רעש</li><li>מורכבות הקמה</li></ul></div>
+                            </div>
+                            <div class="cs-detail-desc" style="margin-top:10px"><strong>סוגיות:</strong> האם יש חקיקה ספציפית קיימת לענבל שיכולה לכלול גם סיעוד? ודיע ציין: "לא יעבור את משרד המשפטים".</div>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="cs-detail-row" id="cs-detail-gov-amitim">
+                    <td colspan="5" class="cs-detail-cell">
+                        <div class="cs-detail-inner" style="--cs-accent:#2563eb">
+                            <div class="cs-detail-header">
+                                <span class="cs-detail-name">עמיתים</span>
+                                <span class="cs-detail-badge">דוגמה — חברה ממשלתית</span>
+                            </div>
+                            <div class="cs-detail-desc"><strong>בסיס משפטי:</strong> לא סגור על ההגדרה של התאגיד הזה. חברת בת של מבטחים. אין לה רישיון מבטח. תפעול בלבד.<br><strong>תיאור:</strong> חברה ממשלתית המנהלת קרנות פנסיה ותיקות בהסדר. גובה היום תגמולים דרך המעסיק בלבד — לא יודעת לגבות מאדם פרטי. תשתית התפעולית קיימת אך הפעילות הנוכחית מצומצמת.</div>
+                            <div class="cs-detail-grid">
+                                <div class="cs-detail-col cs-pros"><div class="cs-detail-col-title">יתרונות עמיתים</div><ul><li>תשתית קיימת לניהול קרנות</li><li>ניסיון מוכח בקרנות בהסדר</li><li>תפעול שוטף של תקנון, דירקטוריון וכו׳</li><li>תחת פיקוח הרשות</li></ul></div>
+                                <div class="cs-detail-col cs-cons"><div class="cs-detail-col-title">חסרונות עמיתים</div><ul><li>אין רישיון מבטח — חייבת להקים חברת בת חדשה עם רישיון</li><li>אין יכולת גבייה מאדם פרטי — רק ממעסיק</li><li>כל חסרונות חברה ממשלתית (לבדיקה)</li></ul></div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- 3. חברת ביטוח פרטית -->
+                <tr class="cs-row-main">
+                    <td class="cs-type-cell"><span class="cs-type-icon" style="background:#fee2e2">🏢</span>חברת ביטוח פרטית</td>
+                    <td>חברת ביטוח פרטית שמנהלת — בין אם דרך מכרז ובין אם הוקמה ביוזמת המפקח. מודל הסתמכות על שוק קיים.</td>
+                    <td><ul class="cs-pros-list"><li>ידע ומומחיות קיימים בשוק</li><li>אין צורך בהקמת גוף חדש</li><li>תחרות במכרז</li></ul></td>
+                    <td><ul class="cs-cons-list"><li>"אם חברת ביטוח מנהלת — למה בכלל לעזוב את המודל הקיים?"</li><li>חברת ביטוח עושה רווח על מוצר שמקבל סבסוד ממשלתי</li><li>מכרז ל-30 שנה בעייתי — דורש יציאה מחודשת</li><li>אינטרס מסחרי שמתנגש עם הציבורי</li></ul></td>
+                    <td class="cs-examples-cell">
+                        <span class="cs-chip" onclick="csToggleExample(this,'priv-tender')">חברת ביטוח פרטית</span>
+                        <span class="cs-chip" onclick="csToggleExample(this,'priv-avner')">אבנר (היסטורי)</span>
+                    </td>
+                </tr>
+                <tr class="cs-detail-row" id="cs-detail-priv-tender">
+                    <td colspan="5" class="cs-detail-cell">
+                        <div class="cs-detail-inner" style="--cs-accent:#dc2626">
+                            <div class="cs-detail-header">
+                                <span class="cs-detail-name">מכרז לחברת ביטוח רגילה</span>
+                                <span class="cs-detail-badge">דוגמה — חברת ביטוח פרטית</span>
+                            </div>
+                            <div class="cs-detail-desc"><strong>בסיס משפטי:</strong> מכרז ציבורי. החברה הזוכה מנהלת ל-X שנים.<br><strong>תיאור:</strong> המודל הקיים היום (כל קופת חולים מנהלת מכרז ובוחרת חברת ביטוח). הצעה: להמשיך באותו מודל אבל באופן מרוכז, או להעביר לחברה אחת בלבד.</div>
+                            <div class="cs-detail-grid">
+                                <div class="cs-detail-col cs-pros"><div class="cs-detail-col-title">יתרונות מכרז</div><ul><li>ידע ומומחיות קיימים בשוק</li><li>אין צורך בהקמת גוף חדש</li><li>תחרות במכרז</li></ul></div>
+                                <div class="cs-detail-col cs-cons"><div class="cs-detail-col-title">חסרונות מכרז</div><ul><li>"אם חברת ביטוח מנהלת — למה לעזוב את המודל הקיים?"</li><li>רווח על מוצר עם סבסוד ממשלתי — לא תקין</li><li>מכרז ל-30 שנה בעייתי</li><li>אינטרס מסחרי מתנגש עם הציבורי</li></ul></div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="cs-detail-row" id="cs-detail-priv-avner">
+                    <td colspan="5" class="cs-detail-cell">
+                        <div class="cs-detail-inner" style="--cs-accent:#dc2626">
+                            <div class="cs-detail-header">
+                                <span class="cs-detail-name">אבנר (היסטורי)</span>
+                                <span class="cs-detail-badge">דוגמה — חברת ביטוח פרטית</span>
+                            </div>
+                            <div class="cs-detail-desc"><strong>בסיס משפטי:</strong> חברה פרטית בבעלות חברות הביטוח. הוקמה <strong>ביוזמת המפקח על הביטוח</strong> כמנגנון פיזור סיכונים בענף רכב חובה. לא תאגיד סטטוטורי.<br><strong>תיאור:</strong> פעלה 1997-2011 בענף ביטוח רכב חובה. בעלי המניות — כל חברות הביטוח. שימשה כמנגנון פיזור סיכונים — לקחה 70% מהפרמיה והחברות 30%. פורקה הדרגתית מ-2001 בשל טענות חוסר הוגנות בחלוקה, ושאריותיה מוזגו לקרנית ב-2011.</div>
+                            <div class="cs-detail-grid">
+                                <div class="cs-detail-col cs-pros"><div class="cs-detail-col-title">יתרונות אבנר</div><ul><li>מימן את עצמו דרך הפרמיות (לא תקציב מדינה)</li><li>הוקם ביוזמת המפקח — תקדים לכוח שלנו לעצב מבנה כזה</li></ul></div>
+                                <div class="cs-detail-col cs-cons"><div class="cs-detail-col-title">חסרונות אבנר</div><ul><li>פורק בגלל סבסוד צולב לא הוגן בין החברות</li><li>תלות מבנית בחברות הביטוח (בעלי המניות)</li><li>אינו תאגיד סטטוטורי — אין חובת מכרזים, פיקוח חלש</li></ul></div>
+                            </div>
+                            <div class="cs-detail-desc" style="margin-top:10px"><strong>סוגיות:</strong> רלוונטי כתקדים — להראות שאפשר להקים גוף ביוזמת המפקח. ללמוד מהפירוק (סבסוד צולב, חוסר הוגנות) להימנע מהן. אבנר עצמו לא דגם ליישום — אבל הלוגיקה של הקמה ביוזמת המפקח רלוונטית.</div>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- 4. פול -->
+                <tr class="cs-row-main">
+                    <td class="cs-type-cell"><span class="cs-type-icon" style="background:#fef3c7">🌀</span>פול</td>
+                    <td>תאגיד שהוקם בתקנות (לא בחוק) ע״י חברות הביטוח. ודיע: "לרדת מהאירוע הזה לחלוטין".</td>
+                    <td><ul class="cs-pros-list"><li>מנגנון מתמרץ — חברות הביטוח מקימות מתוך אינטרס</li><li>עלות נמוכה למדינה — אין מימון ישיר</li><li>פיזור סיכונים מובנה בין חברות הביטוח</li></ul></td>
+                    <td><ul class="cs-cons-list"><li>שליטה רגולטורית חלשה — "שלחו לנו רק קורות חיים, לא יכולנו לפסול"</li><li>בעלי המניות הם חברות הביטוח</li><li>אינו מוגדר כמבטח (אין רישיון)</li><li>ודיע: "לרדת מהאירוע הזה לחלוטין"</li></ul></td>
+                    <td class="cs-examples-cell">
+                        <span class="cs-chip" onclick="csToggleExample(this,'pool-existing')">הפול</span>
+                    </td>
+                </tr>
+                <tr class="cs-detail-row" id="cs-detail-pool-existing">
+                    <td colspan="5" class="cs-detail-cell">
+                        <div class="cs-detail-inner" style="--cs-accent:#d97706">
+                            <div class="cs-detail-header">
+                                <span class="cs-detail-name">הפול הקיים (ביטוח רכב חובה)</span>
+                                <span class="cs-detail-badge">דוגמה — פול</span>
+                            </div>
+                            <div class="cs-detail-desc"><strong>בסיס משפטי:</strong> סעיף 7ג לפקודת ביטוח רכב מנועים. תקנה 3 לתקנות "ביטוח רכב מנועים, הסדר ביטוח שיורי". אין הקמה בחקיקה ראשית.<br><strong>תיאור:</strong> המבטחים מקימים תאגיד באישור הרשות. אם הם לא מקימים — הרשות עצמה משמשת מנהל ההסדר (סנקציה: 1.5% מהפרמיה כעלות גבייה). בעלי המניות הם חברות הביטוח. בית המשפט העליון פסק שאין עליו חובת מכרזים.</div>
+                            <div class="cs-detail-grid">
+                                <div class="cs-detail-col cs-pros"><div class="cs-detail-col-title">יתרונות פול</div><ul><li>מנגנון מתמרץ — חברות הביטוח פועלות מאינטרס</li><li>עלות נמוכה למדינה</li><li>פיזור סיכונים מובנה</li></ul></div>
+                                <div class="cs-detail-col cs-cons"><div class="cs-detail-col-title">חסרונות פול</div><ul><li>שליטה רגולטורית חלשה (אין סמכות לפסול מינויים)</li><li>בעלי המניות = חברות הביטוח</li><li>אינו מוגדר כמבטח</li></ul></div>
+                            </div>
+                            <div class="cs-detail-desc" style="margin-top:10px"><strong>סוגיות:</strong> לא רלוונטי לסיעוד — מודל לא מותאם. ההמלצה החד-משמעית: לא לשקול.</div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    </div><!-- /pane structure -->
+
+    <!-- ============ טאב 2: איחוד קרנות ============ -->
+    <div class="cs-tab-pane" id="cs-pane-merge">
+        <h3 class="cs-section-title">איחוד קרנות — חלופות</h3>
+        <p class="cs-section-sub">שלוש חלופות מבניות לניהול 4 הקרנות הקיימות.</p>
+
+        <div class="cs-options-grid">
+            <!-- חלופה 1 -->
+            <div class="cs-option-card">
+                <div class="cs-option-header">
+                    <div class="cs-option-name">איחוד מלא — קרן אחת</div>
+                    <span class="cs-rank cs-rank-1">דירוג 1</span>
+                </div>
+                <div class="cs-option-body">
+                    <div class="cs-option-desc">כל 4 הקרנות מתמזגות לקרן אחת מאוחדת תחת גוף ניהולי אחד.</div>
+                    <div class="cs-pc-block"><div class="cs-pc-title pros">יתרונות</div><ul class="cs-pc-list pros"><li>✓ פיזור סיכון מקסימלי — האוכלוסייה הגדולה ביותר</li><li>✓ ניהול פשוט — מערכת אחת, מנגנון אחד</li><li>✓ הכי נכון אקטוארית</li></ul></div>
+                    <div class="cs-pc-block"><div class="cs-pc-title cons">חסרונות</div><ul class="cs-pc-list cons"><li>✗ הכי קשה משפטית</li></ul></div>
+                    <div class="cs-pc-block"><div class="cs-pc-title justify">הצדקה</div><ul class="cs-pc-list justify"><li>★ Run Off — אין מבוטחים חדשים, נדרש ניהול מאוחד</li><li>★ סיוע ממשלתי זהה בין אם מדובר בקרן אחת או בקרנות נפרדות</li></ul></div>
+                    <div class="cs-pc-block"><div class="cs-pc-title" style="color:#7c3aed;font-weight:700">פתרון אפשרי</div><ul class="cs-pc-list" style="color:#5b21b6"><li>★ הלאמה של חלק מהקרן של מכבי</li></ul></div>
+                </div>
+            </div>
+
+            <!-- חלופה 2 -->
+            <div class="cs-option-card">
+                <div class="cs-option-header">
+                    <div class="cs-option-name">4 קרנות תחת גוף אחד</div>
+                    <span class="cs-rank cs-rank-2">דירוג 2</span>
+                </div>
+                <div class="cs-option-body">
+                    <div class="cs-option-desc">הקרנות נשארות נפרדות אקטוארית, אבל מנוהלות כולן תחת גוף ניהול אחד.</div>
+                    <div class="cs-pc-block"><div class="cs-pc-title pros">יתרונות</div><ul class="cs-pc-list pros"><li>✓ פגיעה פחותה בזכות הקניין</li><li>✓ אחידות ניהולית ושקיפות</li><li>✓ אפשרות לפרמיות נפרדות לכל קרן</li></ul></div>
+                    <div class="cs-pc-block"><div class="cs-pc-title cons">חסרונות</div><ul class="cs-pc-list cons"><li>✗ פיזור סיכון מוגבל בכל קרן</li><li>✗ סבסוד צולב לא מובנה — דורש מנגנון איזון</li></ul></div>
+                    <div class="cs-pc-block"><div class="cs-pc-title justify">הצדקה</div><ul class="cs-pc-list justify"><li>★ מאזן בין שמירה על הזכויות הקיימות לבין ניהול מסודר</li></ul></div>
+                </div>
+            </div>
+
+            <!-- חלופה 3 -->
+            <div class="cs-option-card">
+                <div class="cs-option-header">
+                    <div class="cs-option-name">4 קרנות מפוצלות תחת גופים שונים</div>
+                    <span class="cs-rank cs-rank-3">דירוג 3</span>
+                </div>
+                <div class="cs-option-body">
+                    <div class="cs-option-desc">המצב הקיים (כמעט) — כל קרן ממשיכה תחת גוף ניהולי נפרד, עם הוראות החלה אחידות.</div>
+                    <div class="cs-pc-block"><div class="cs-pc-title pros">יתרונות</div><ul class="cs-pc-list pros"><li>✓ פגיעה מינימלית בזכות הקניין</li><li>✓ קל ליישום — מינימום שינוי</li></ul></div>
+                    <div class="cs-pc-block"><div class="cs-pc-title cons">חסרונות</div><ul class="cs-pc-list cons"><li>✗ ארביטראז' רגולטורי בין הגופים</li><li>✗ פיזור סיכון נמוך</li><li>✗ מורכבות פיקוחית</li><li>✗ ייקור עלויות ניהול</li></ul></div>
+                    <div class="cs-pc-block"><div class="cs-pc-title justify">הצדקה</div><ul class="cs-pc-list justify"><li>★ אופציה לסטטוס קוו — בעיקר אם איחוד נחסם משפטית</li></ul></div>
+                </div>
+            </div>
+        </div>
+    </div><!-- /pane merge -->
+
+    <!-- ============ טאב 3: OPT IN / OPT OUT ============ -->
+    <div class="cs-tab-pane" id="cs-pane-optin">
+        <h3 class="cs-section-title">מתווה צירוף מבוטחים למוצר החדש — OPT OUT</h3>
+        <p class="cs-section-sub">הוכרע: מודל אופט-אאוט. שיבוץ אוטומטי + חלון בחירה. </p>
+
+        <div class="cs-flow">
+            <div class="cs-flow-step">
+                <div class="cs-flow-num">1</div>
+                <div class="cs-flow-content">
+                    <div class="cs-flow-title">תאריך קובע — מועד הצטרפות אחרון למוצר הקיים</div>
+                    <div class="cs-flow-desc">קביעה מועד אחרון להצטרפות חדשה למוצר הסיעודי הקיים — חיוני למניעת כניסת אנשים ברגע האחרון כדי לתפוס את הסבסוד הממשלתי.</div>
+                </div>
+            </div>
+
+            <div class="cs-flow-step">
+                <div class="cs-flow-num">2</div>
+                <div class="cs-flow-content">
+                    <div class="cs-flow-title">חלון בחירה — חצי שנה לפני המעבר</div>
+                    <div class="cs-flow-desc">תקופה של 6 חודשים שבה כל מבוטח רשאי לבחור באופן אקטיבי את המבטח שלו מבין הזוכים במכרז. בתום התקופה — מי שלא בחר משובץ אוטומטית.</div>
+                </div>
+            </div>
+
+            <div class="cs-flow-step">
+                <div class="cs-flow-num">3</div>
+                <div class="cs-flow-content">
+                    <div class="cs-flow-title">ברירת מחדל — שיבוץ רנדומלי שוויוני</div>
+                    <div class="cs-flow-desc">מבוטח שלא בחר עד תום החלון משובץ אוטומטית באופן רנדומלי. כל חברה זוכה מקבלת חלק יחסי מהאוכלוסייה.</div>
+                </div>
+            </div>
+
+            <div class="cs-flow-step">
+                <div class="cs-flow-num">4</div>
+                <div class="cs-flow-content">
+                    <div class="cs-flow-title">תקופת חרטה אחרי המעבר</div>
+                    <div class="cs-flow-desc">לאחר השיבוץ למוצר החדש — חלון נוסף של מספר חודשים שבו ניתן לבטל ולמשוך ללא מס. לאחר חלון זה — המבוטח "נעול" כמו בכל פוליסת חיסכון.</div>
+                </div>
+            </div>
+
+        </div>
+
+        <h3 class="cs-section-title" style="margin-top:24px">סוגיות פתוחות בנושא צעירים</h3>
+        <div class="cs-options-grid">
+            <div class="cs-option-card">
+                <div class="cs-option-header">
+                    <div class="cs-option-name">משיכת כסף בעת סירוב</div>
+                    <span class="cs-rank cs-rank-2">פתוח</span>
+                </div>
+                <div class="cs-option-body">
+                    <div class="cs-option-desc">מה קורה אם צעיר מסרב להצטרף בחלון הראשוני? האם מקבל פיצוי / משיכה?</div>
+                    <div class="cs-pc-block"><div class="cs-pc-title pros">בעד פיצוי</div><ul class="cs-pc-list pros"><li>עיקרון מידתיות — לא מעבירים אדם בכפייה ממוצר ששילם בעדו</li></ul></div>
+                    <div class="cs-pc-block"><div class="cs-pc-title cons">נגד פיצוי</div><ul class="cs-pc-list cons"><li>הקרן היא של המבוגרים — צעיר לא תרם</li><li>שווי המבוטח יורד דרמטית — חברות במכרז לא ייקחו קבוצה שאפשר לרוקן</li><li>פגיעה במבנה הכלכלי של המכרז</li></ul></div>
+                </div>
+            </div>
+
+            <div class="cs-option-card">
+                <div class="cs-option-header">
+                    <div class="cs-option-name">דיפרנציאליות גילי 50-55</div>
+                    <span class="cs-rank cs-rank-2">פתוח</span>
+                </div>
+                <div class="cs-option-body">
+                    <div class="cs-option-desc">קבוצת ה"חצי בוגרים" — בני 50-55 — אינה הומוגנית עם הצעירים או עם המבוגרים. נדרש פתרון מובחן.</div>
+                    <div class="cs-pc-block"><div class="cs-pc-title cons">בעיות</div><ul class="cs-pc-list cons"><li>חיתוך חד ב-55 פוגע בבני 53-54 ששילמו פרמיות גבוהות</li><li>הצמדה לצעירים לא הוגנת אקטוארית</li></ul></div>
+                </div>
+            </div>
+
+            <div class="cs-option-card">
+                <div class="cs-option-header">
+                    <div class="cs-option-name">הודעה למבוטחים</div>
+                    <span class="cs-rank cs-rank-1">סוכם בפגישה</span>
+                </div>
+                <div class="cs-option-body">
+                    <div class="cs-option-desc">מנגנון יידוע פעיל למבוטחים — הודעה עם רשימת חברות זוכות והנחיות לבחירה.</div>
+                    <div class="cs-pc-block"><div class="cs-pc-title pros">לטובת אופט-אין מודע</div><ul class="cs-pc-list pros"><li>שקיפות מלאה למבוטחים</li><li>חברות הביטוח יכולות גם הן לפנות למבוטחים</li></ul></div>
+                    <div class="cs-pc-block"><div class="cs-pc-title cons">מגבלה</div><ul class="cs-pc-list cons"><li>רוב האנשים עדיין לא יבחרו אקטיבית — הסיבה למודל אופט-אאוט</li></ul></div>
+                </div>
+            </div>
+        </div>
+    </div><!-- /pane optin -->
+
+</div>
+
+`;
     }
 
     roadmapExpandAll() {
@@ -1788,3 +2194,23 @@ let app;
 document.addEventListener('DOMContentLoaded', () => {
     app = new App();
 });
+
+// === Corporate Structure helpers (boardroom tab) ===
+window.csSwitchTab = function(btn, paneId){
+    document.querySelectorAll('.cs-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.cs-tab-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    const pane = document.getElementById(paneId);
+    if (pane) pane.classList.add('active');
+};
+window.csToggleExample = function(chip, id){
+    const row = document.getElementById('cs-detail-' + id);
+    if (!row) return;
+    const wasOpen = row.classList.contains('expanded');
+    document.querySelectorAll('.cs-detail-row').forEach(r => r.classList.remove('expanded'));
+    document.querySelectorAll('.cs-chip.active').forEach(c => c.classList.remove('active'));
+    if (!wasOpen){
+        row.classList.add('expanded');
+        chip.classList.add('active');
+    }
+};
