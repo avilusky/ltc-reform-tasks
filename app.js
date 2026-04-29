@@ -1419,7 +1419,7 @@ class App {
 .cs-tab-pane.active { display:block; }
 .cs-section-title { font-size:18px; font-weight:800; color:#1e3a8a; margin:0 0 6px; }
 .cs-section-sub { font-size:13.5px; color:#6b7280; margin:0 0 18px; }
-.cs-options-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; margin-bottom:20px; }
+.cs-options-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; margin-bottom:20px; align-items:start; }
 @media (max-width:1100px){ .cs-options-grid{grid-template-columns:1fr;} }
 .cs-option-card { background:white; border-radius:12px; border:1px solid #e5e7eb; box-shadow:0 1px 3px rgba(0,0,0,0.05); overflow:hidden; display:flex; flex-direction:column; }
 .cs-option-header { padding:14px 16px; border-bottom:1px solid #f3f4f6; display:flex; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(180deg,#f8fafc 0%, #eff6ff 100%); }
@@ -1439,6 +1439,75 @@ class App {
 .cs-pc-list.pros li { color:#065f46; }
 .cs-pc-list.cons li { color:#991b1b; }
 .cs-pc-list.justify li { color:#1e40af; }
+
+/* תקדים משפטי - מרכיב מתקפל */
+.cs-precedent-box {
+    margin-top:14px;
+    border:1px solid #e0d4f7;
+    border-radius:10px;
+    background:linear-gradient(135deg, #faf5ff 0%, #f3eafe 100%);
+    overflow:hidden;
+    transition:all 0.3s ease;
+}
+.cs-precedent-box[open] {
+    box-shadow:0 4px 12px rgba(124,58,237,0.12);
+    border-color:#c4b5fd;
+}
+.cs-precedent-summary {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 14px;
+    cursor:pointer;
+    list-style:none;
+    user-select:none;
+    transition:background 0.2s;
+}
+.cs-precedent-summary::-webkit-details-marker { display:none; }
+.cs-precedent-summary:hover { background:rgba(124,58,237,0.06); }
+.cs-precedent-icon {
+    font-size:18px;
+    filter:drop-shadow(0 1px 2px rgba(124,58,237,0.3));
+}
+.cs-precedent-title {
+    flex:1;
+    font-weight:700;
+    color:#5b21b6;
+    font-size:14px;
+}
+.cs-precedent-arrow {
+    color:#7c3aed;
+    font-size:12px;
+    transition:transform 0.3s ease;
+}
+.cs-precedent-box[open] .cs-precedent-arrow {
+    transform:rotate(-90deg);
+}
+.cs-precedent-content {
+    padding:4px 16px 16px;
+    border-top:1px dashed #d8b4fe;
+    margin-top:4px;
+    animation:cs-precedent-fade 0.4s ease;
+}
+@keyframes cs-precedent-fade {
+    from { opacity:0; transform:translateY(-4px); }
+    to { opacity:1; transform:translateY(0); }
+}
+.cs-precedent-intro {
+    margin:10px 0 8px;
+    color:#6b21a8;
+    font-size:13px;
+    font-weight:600;
+}
+.cs-precedent-list {
+    margin:0;
+    padding-right:18px;
+    color:#374151;
+    font-size:13px;
+    line-height:1.7;
+}
+.cs-precedent-list li { margin-bottom:8px; }
+.cs-precedent-list li strong { color:#5b21b6; }
 .cs-flow { background:white; border-radius:12px; border:1px solid #e5e7eb; padding:20px; }
 .cs-flow-step { display:flex; gap:14px; padding:14px 0; border-bottom:1px dashed #e5e7eb; }
 .cs-flow-step:last-child { border-bottom:none; }
@@ -1511,20 +1580,20 @@ class App {
         <table class="cs-table">
             <thead>
                 <tr>
-                    <th style="width:18%">סוג</th>
-                    <th style="width:28%">הסבר</th>
-                    <th style="width:20%">יתרונות</th>
-                    <th style="width:20%">חסרונות</th>
-                    <th style="width:14%">דוגמאות</th>
+                    <th style="width:16%">סוג</th>
+                    <th style="width:23%">הסבר</th>
+                    <th style="width:23%">יתרונות</th>
+                    <th style="width:23%">חסרונות</th>
+                    <th style="width:15%">דוגמאות</th>
                 </tr>
             </thead>
             <tbody>
                 <!-- 1. תאגיד סטטוטורי -->
                 <tr class="cs-row-main">
                     <td class="cs-type-cell"><span class="cs-type-icon" style="background:#d1fae5">📜</span>תאגיד סטטוטורי<div style="margin-top:6px"><span class="cs-rank cs-rank-1">מועדף</span></div></td>
-                    <td>תאגיד שמוקם בחקיקה ראשית ייעודית, "דינו כדין מדינה". לא נדרש להעבירו דרך רשות החברות הממשלתיות, אין דרישת הון עצמי פורמלית, וניתן לעצב את כל המבנה בחוק עצמו (מי ממנה, איך ממנה, סמכויות פיקוח, מימון).</td>
-                    <td><ul class="cs-pros-list"><li>מבנה ידוע ומוכר — תקדים מוצלח של 30 שנה</li><li>אין צורך ברשות החברות הממשלתיות</li><li>השר (לא הממונה) ממנה את היו״ר — שליטה ממשלתית</li><li>חל אוטומטית: חוק מבקר המדינה, חובת מכרזים</li><li>פשטות הקמה יחסית</li><li>מוציא את חברות הביטוח וקופות החולים מהמשוואה הניהולית</li></ul></td>
-                    <td><ul class="cs-cons-list"><li>חוק חוזה הביטוח לא חל אוטומטית — צריך לעגן בחוק החדש</li><li>חוק הפיקוח לא חל אוטומטית</li><li>בקרנית הקיימת: הוראות הרשות מתקבלות ב"רצון טוב"</li><li>סמכויות פיקוח של הרשות מצומצמות (חובת מסירת דוחות בלבד)</li></ul></td>
+                    <td>תאגיד שמוקם בחקיקה ראשית. לא נדרש להעבירו דרך רשות החברות הממשלתיות, אין דרישת הון עצמי פורמלית, וניתן לעצב את כל המבנה בחוק עצמו (מי ממנה, איך ממנה, סמכויות פיקוח, מימון).</td>
+                    <td><ul class="cs-pros-list"><li>מבנה ידוע ומוכר — תקדים מוצלח של 30 שנה</li><li>אין צורך ברשות החברות הממשלתיות</li><li>שליטה ממשלתית — השר ממנה את היו״ר (לא הממונה)</li><li>חל אוטומטית: חוק מבקר המדינה, חובת מכרזים</li><li>פשטות הקמה יחסית</li><li>מוציא את חברות הביטוח וקופות החולים מהמשוואה הניהולית (ייתכן שיהיו נציגים בהנהלה ויהיו אחראים לגבייה)</li></ul></td>
+                    <td><ul class="cs-cons-list"><li>חוק חוזה הביטוח לא חל על קרנית — רק ע"י תקנון פנימי</li><li>חוק הפיקוח לא חל במישירין</li><li>בקרנית הקיימת: הוראות הרשות מתקבלות ב"רצון טוב"</li><li>ככל הנראה יהיה דרישה למינוי דירקטורים מהציבור</li><li>הקמת תאגיד סטטוטורי נוסף כאשר הרשות אינה כזו</li></ul></td>
                     <td class="cs-examples-cell">
                         <span class="cs-chip" onclick="csToggleExample(this,'stat-karnit')">קרנית</span>
                     </td>
@@ -1550,11 +1619,10 @@ class App {
                 <tr class="cs-row-main">
                     <td class="cs-type-cell"><span class="cs-type-icon" style="background:#dbeafe">🏛️</span>חברה ממשלתית</td>
                     <td>חברה שהוקמה לפי חוק החברות הממשלתיות. כפופה לפיקוח של רשות החברות הממשלתיות, מינויים דרך השר, ודרישות הון עצמי.</td>
-                    <td><ul class="cs-pros-list"><li>תשתית רגולטורית קיימת (ענבל, עמיתים)</li><li>ניסיון מוכח בניהול ביטוח / קרנות</li></ul></td>
-                    <td><ul class="cs-cons-list"><li>כפיפות לרשות החברות הממשלתיות — חסמי הקמה ופיקוח</li><li>מצב פוליטי בעייתי — מינויים תקועים, רעש סביב חברות ממשלתיות</li><li>מורכבות הקמה</li><li>ודיע: "לא יעבור את משרד המשפטים"</li></ul></td>
+                    <td><ul class="cs-pros-list"><li>תשתית רגולטורית קיימת (ענבל)</li><li>ניסיון מוכח בניהול ביטוח</li></ul></td>
+                    <td><ul class="cs-cons-list"><li>כפיפות לרשות החברות הממשלתיות — חסמי הקמה ופיקוח</li><li>מצב פוליטי בעייתי — מינויים תקועים, רעש סביב חברות ממשלתיות</li><li>מורכבות הקמה</li></ul></td>
                     <td class="cs-examples-cell">
                         <span class="cs-chip" onclick="csToggleExample(this,'gov-inbal')">ענבל</span>
-                        <span class="cs-chip" onclick="csToggleExample(this,'gov-amitim')">עמיתים</span>
                     </td>
                 </tr>
                 <tr class="cs-detail-row" id="cs-detail-gov-inbal">
@@ -1569,22 +1637,7 @@ class App {
                                 <div class="cs-detail-col cs-pros"><div class="cs-detail-col-title">יתרונות ענבל</div><ul><li>מומחיות קיימת בניהול ביטוח</li><li>תשתית פעילה</li><li>מנגנון פיקוח מבוסס מול החשכ״ל</li></ul></div>
                                 <div class="cs-detail-col cs-cons"><div class="cs-detail-col-title">חסרונות ענבל</div><ul><li>כפיפות לרשות החברות הממשלתיות</li><li>מצב פוליטי בעייתי, הרבה רעש</li><li>מורכבות הקמה</li></ul></div>
                             </div>
-                            <div class="cs-detail-desc" style="margin-top:10px"><strong>סוגיות:</strong> האם יש חקיקה ספציפית קיימת לענבל שיכולה לכלול גם סיעוד? ודיע ציין: "לא יעבור את משרד המשפטים".</div>
-                        </div>
-                    </td>
-                </tr>
-                <tr class="cs-detail-row" id="cs-detail-gov-amitim">
-                    <td colspan="5" class="cs-detail-cell">
-                        <div class="cs-detail-inner" style="--cs-accent:#2563eb">
-                            <div class="cs-detail-header">
-                                <span class="cs-detail-name">עמיתים</span>
-                                <span class="cs-detail-badge">דוגמה — חברה ממשלתית</span>
-                            </div>
-                            <div class="cs-detail-desc"><strong>בסיס משפטי:</strong> לא סגור על ההגדרה של התאגיד הזה. חברת בת של מבטחים. אין לה רישיון מבטח. תפעול בלבד.<br><strong>תיאור:</strong> חברה ממשלתית המנהלת קרנות פנסיה ותיקות בהסדר. גובה היום תגמולים דרך המעסיק בלבד — לא יודעת לגבות מאדם פרטי. תשתית התפעולית קיימת אך הפעילות הנוכחית מצומצמת.</div>
-                            <div class="cs-detail-grid">
-                                <div class="cs-detail-col cs-pros"><div class="cs-detail-col-title">יתרונות עמיתים</div><ul><li>תשתית קיימת לניהול קרנות</li><li>ניסיון מוכח בקרנות בהסדר</li><li>תפעול שוטף של תקנון, דירקטוריון וכו׳</li><li>תחת פיקוח הרשות</li></ul></div>
-                                <div class="cs-detail-col cs-cons"><div class="cs-detail-col-title">חסרונות עמיתים</div><ul><li>אין רישיון מבטח — חייבת להקים חברת בת חדשה עם רישיון</li><li>אין יכולת גבייה מאדם פרטי — רק ממעסיק</li><li>כל חסרונות חברה ממשלתית (לבדיקה)</li></ul></div>
-                            </div>
+                            <div class="cs-detail-desc" style="margin-top:10px"><strong>סוגיות:</strong> האם יש חקיקה ספציפית קיימת לענבל שיכולה לכלול גם סיעוד?</div>
                         </div>
                     </td>
                 </tr>
@@ -1594,10 +1647,9 @@ class App {
                     <td class="cs-type-cell"><span class="cs-type-icon" style="background:#fee2e2">🏢</span>חברת ביטוח פרטית</td>
                     <td>חברת ביטוח פרטית שמנהלת — בין אם דרך מכרז ובין אם הוקמה ביוזמת המפקח. מודל הסתמכות על שוק קיים.</td>
                     <td><ul class="cs-pros-list"><li>ידע ומומחיות קיימים בשוק</li><li>אין צורך בהקמת גוף חדש</li><li>תחרות במכרז</li></ul></td>
-                    <td><ul class="cs-cons-list"><li>"אם חברת ביטוח מנהלת — למה בכלל לעזוב את המודל הקיים?"</li><li>חברת ביטוח עושה רווח על מוצר שמקבל סבסוד ממשלתי</li><li>מכרז ל-30 שנה בעייתי — דורש יציאה מחודשת</li><li>אינטרס מסחרי שמתנגש עם הציבורי</li></ul></td>
+                    <td><ul class="cs-cons-list"><li>דומה מדי למודל הקיים — מעלה שאלות למה לשנות</li><li>חברת ביטוח עושה רווח על מוצר שמקבל סבסוד ממשלתי</li><li>מכרז ל-30 שנה בעייתי — דורש יציאה מחודשת</li><li>אינטרס מסחרי שמתנגש עם הציבורי</li></ul></td>
                     <td class="cs-examples-cell">
                         <span class="cs-chip" onclick="csToggleExample(this,'priv-tender')">חברת ביטוח פרטית</span>
-                        <span class="cs-chip" onclick="csToggleExample(this,'priv-avner')">אבנר (היסטורי)</span>
                     </td>
                 </tr>
                 <tr class="cs-detail-row" id="cs-detail-priv-tender">
@@ -1610,24 +1662,8 @@ class App {
                             <div class="cs-detail-desc"><strong>בסיס משפטי:</strong> מכרז ציבורי. החברה הזוכה מנהלת ל-X שנים.<br><strong>תיאור:</strong> המודל הקיים היום (כל קופת חולים מנהלת מכרז ובוחרת חברת ביטוח). הצעה: להמשיך באותו מודל אבל באופן מרוכז, או להעביר לחברה אחת בלבד.</div>
                             <div class="cs-detail-grid">
                                 <div class="cs-detail-col cs-pros"><div class="cs-detail-col-title">יתרונות מכרז</div><ul><li>ידע ומומחיות קיימים בשוק</li><li>אין צורך בהקמת גוף חדש</li><li>תחרות במכרז</li></ul></div>
-                                <div class="cs-detail-col cs-cons"><div class="cs-detail-col-title">חסרונות מכרז</div><ul><li>"אם חברת ביטוח מנהלת — למה לעזוב את המודל הקיים?"</li><li>רווח על מוצר עם סבסוד ממשלתי — לא תקין</li><li>מכרז ל-30 שנה בעייתי</li><li>אינטרס מסחרי מתנגש עם הציבורי</li></ul></div>
+                                <div class="cs-detail-col cs-cons"><div class="cs-detail-col-title">חסרונות מכרז</div><ul><li>דומה מדי למודל הקיים — מעלה שאלות למה לשנות</li><li>רווח על מוצר עם סבסוד ממשלתי — לא תקין</li><li>מכרז ל-30 שנה בעייתי</li><li>אינטרס מסחרי מתנגש עם הציבורי</li></ul></div>
                             </div>
-                        </div>
-                    </td>
-                </tr>
-                <tr class="cs-detail-row" id="cs-detail-priv-avner">
-                    <td colspan="5" class="cs-detail-cell">
-                        <div class="cs-detail-inner" style="--cs-accent:#dc2626">
-                            <div class="cs-detail-header">
-                                <span class="cs-detail-name">אבנר (היסטורי)</span>
-                                <span class="cs-detail-badge">דוגמה — חברת ביטוח פרטית</span>
-                            </div>
-                            <div class="cs-detail-desc"><strong>בסיס משפטי:</strong> חברה פרטית בבעלות חברות הביטוח. הוקמה <strong>ביוזמת המפקח על הביטוח</strong> כמנגנון פיזור סיכונים בענף רכב חובה. לא תאגיד סטטוטורי.<br><strong>תיאור:</strong> פעלה 1997-2011 בענף ביטוח רכב חובה. בעלי המניות — כל חברות הביטוח. שימשה כמנגנון פיזור סיכונים — לקחה 70% מהפרמיה והחברות 30%. פורקה הדרגתית מ-2001 בשל טענות חוסר הוגנות בחלוקה, ושאריותיה מוזגו לקרנית ב-2011.</div>
-                            <div class="cs-detail-grid">
-                                <div class="cs-detail-col cs-pros"><div class="cs-detail-col-title">יתרונות אבנר</div><ul><li>מימן את עצמו דרך הפרמיות (לא תקציב מדינה)</li><li>הוקם ביוזמת המפקח — תקדים לכוח שלנו לעצב מבנה כזה</li></ul></div>
-                                <div class="cs-detail-col cs-cons"><div class="cs-detail-col-title">חסרונות אבנר</div><ul><li>פורק בגלל סבסוד צולב לא הוגן בין החברות</li><li>תלות מבנית בחברות הביטוח (בעלי המניות)</li><li>אינו תאגיד סטטוטורי — אין חובת מכרזים, פיקוח חלש</li></ul></div>
-                            </div>
-                            <div class="cs-detail-desc" style="margin-top:10px"><strong>סוגיות:</strong> רלוונטי כתקדים — להראות שאפשר להקים גוף ביוזמת המפקח. ללמוד מהפירוק (סבסוד צולב, חוסר הוגנות) להימנע מהן. אבנר עצמו לא דגם ליישום — אבל הלוגיקה של הקמה ביוזמת המפקח רלוונטית.</div>
                         </div>
                     </td>
                 </tr>
@@ -1635,9 +1671,9 @@ class App {
                 <!-- 4. פול -->
                 <tr class="cs-row-main">
                     <td class="cs-type-cell"><span class="cs-type-icon" style="background:#fef3c7">🌀</span>פול</td>
-                    <td>תאגיד שהוקם בתקנות (לא בחוק) ע״י חברות הביטוח. ודיע: "לרדת מהאירוע הזה לחלוטין".</td>
+                    <td>תאגיד שהוקם בתקנות (לא בחוק) ע״י חברות הביטוח.</td>
                     <td><ul class="cs-pros-list"><li>מנגנון מתמרץ — חברות הביטוח מקימות מתוך אינטרס</li><li>עלות נמוכה למדינה — אין מימון ישיר</li><li>פיזור סיכונים מובנה בין חברות הביטוח</li></ul></td>
-                    <td><ul class="cs-cons-list"><li>שליטה רגולטורית חלשה — "שלחו לנו רק קורות חיים, לא יכולנו לפסול"</li><li>בעלי המניות הם חברות הביטוח</li><li>אינו מוגדר כמבטח (אין רישיון)</li><li>ודיע: "לרדת מהאירוע הזה לחלוטין"</li></ul></td>
+                    <td><ul class="cs-cons-list"><li>שליטה רגולטורית חלשה</li><li>בעלי המניות הם חברות הביטוח</li><li>אינו מוגדר כמבטח (אין רישיון)</li></ul></td>
                     <td class="cs-examples-cell">
                         <span class="cs-chip" onclick="csToggleExample(this,'pool-existing')">הפול</span>
                     </td>
@@ -1655,6 +1691,49 @@ class App {
                                 <div class="cs-detail-col cs-cons"><div class="cs-detail-col-title">חסרונות פול</div><ul><li>שליטה רגולטורית חלשה (אין סמכות לפסול מינויים)</li><li>בעלי המניות = חברות הביטוח</li><li>אינו מוגדר כמבטח</li></ul></div>
                             </div>
                             <div class="cs-detail-desc" style="margin-top:10px"><strong>סוגיות:</strong> לא רלוונטי לסיעוד — מודל לא מותאם. ההמלצה החד-משמעית: לא לשקול.</div>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- 5. מנהל מורשה -->
+                <tr class="cs-row-main">
+                    <td class="cs-type-cell"><span class="cs-type-icon" style="background:#ede9fe">🔑</span>מנהל מורשה</td>
+                    <td>מנהל מורשה שמקבל מנדט לתחום מסוים ולא לחברה. כפוף למפקח. המנהל מקים תאגיד.</td>
+                    <td><ul class="cs-pros-list"><li>שליטה רגולטוריה</li></ul></td>
+                    <td><ul class="cs-cons-list"><li>מבנה מעורפל — בין חברה עמיתים לפול</li><li>שליטה ממשלתית פחותה ממודל סטטוטורי</li></ul></td>
+                    <td class="cs-examples-cell">
+                        <span class="cs-chip" onclick="csToggleExample(this,'mng-amitim')">עמיתים</span>
+                        <span class="cs-chip" onclick="csToggleExample(this,'mng-kupot')">קופ״ח כבעלי מניות</span>
+                    </td>
+                </tr>
+                <tr class="cs-detail-row" id="cs-detail-mng-amitim">
+                    <td colspan="5" class="cs-detail-cell">
+                        <div class="cs-detail-inner" style="--cs-accent:#7c3aed">
+                            <div class="cs-detail-header">
+                                <span class="cs-detail-name">עמיתים</span>
+                                <span class="cs-detail-badge">דוגמה — מנהל מורשה</span>
+                            </div>
+                            <div class="cs-detail-desc"><strong>בסיס משפטי:</strong> מנהל מורשה לקרנות הפנסיה הוותיקות בהסדר. חברת בת של מבטחים. אין לה רישיון מבטח. תפעול בלבד.<br><strong>תיאור:</strong> מנהל את קרנות הפנסיה הוותיקות בהסדר. גובה היום תגמולים דרך המעסיק בלבד — לא יודעת לגבות מאדם פרטי. תשתית תפעולית קיימת.</div>
+                            <div class="cs-detail-grid">
+                                <div class="cs-detail-col cs-pros"><div class="cs-detail-col-title">יתרונות עמיתים</div><ul><li>תשתית קיימת לניהול קרנות בהסדר</li><li>ניסיון מוכח</li><li>תפעול שוטף של תקנון, דירקטוריון וכו׳</li><li>תחת פיקוח הרשות</li></ul></div>
+                                <div class="cs-detail-col cs-cons"><div class="cs-detail-col-title">חסרונות עמיתים</div><ul><li>אין רישיון מבטח — חייבת להקים חברת בת עם רישיון</li><li>אין יכולת גבייה מאדם פרטי — רק ממעסיק</li></ul></div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="cs-detail-row" id="cs-detail-mng-kupot">
+                    <td colspan="5" class="cs-detail-cell">
+                        <div class="cs-detail-inner" style="--cs-accent:#7c3aed">
+                            <div class="cs-detail-header">
+                                <span class="cs-detail-name">תאגיד שבו קופ״ח בעלי מניות</span>
+                                <span class="cs-detail-badge">דוגמה — מנהל מורשה (סוג של פול)</span>
+                            </div>
+                            <div class="cs-detail-desc"><strong>בסיס משפטי:</strong> נדרשת מסגרת חקיקתית חדשה. סוג של פול — אבל עם קופות החולים כבעלי מניות במקום חברות הביטוח.<br><strong>תיאור:</strong> הקמת תאגיד לניהול הקבוצה הסגורה, בו קופות החולים משמשות "מעין בעלי מניות". מנוהל ע״י מנהל מורשה כפוף למפקח. הצעה שעלתה מדור.</div>
+                            <div class="cs-detail-grid">
+                                <div class="cs-detail-col cs-pros"><div class="cs-detail-col-title">יתרונות</div><ul><li>שליטה דומה לעמיתים ולפול</li><li>שליטה כפופה למפקח</li><li>דומה למבנה הקיים שבו קופ״ח חלק מתכניות הביטוח — ייתכן ויקל על ההקמה</li><li>פשוט יחסית לרשות — מאפיינים של עמיתים</li></ul></div>
+                                <div class="cs-detail-col cs-cons"><div class="cs-detail-col-title">חסרונות</div><ul><li>קופ״ח כחלק מתכניות הביטוח = חלק מהבעיה הקיימת (גם יתרון וגם חיסרון)</li><li>ניגוד עניינים פוטנציאלי של הקופות</li><li>מעמד "מעין בעל מניות" לא מוגדר משפטית</li><li>סיכון של דומיננטיות הקופות על חשבון האינטרס הציבורי</li></ul></div>
+                            </div>
+                            <div class="cs-detail-desc" style="margin-top:10px"><strong>סוגיות:</strong> דור — לעצב הוראות חוק שיגדירו מעמד הקופות (זכויות הצבעה, רווחים, אחריות). מודל ההכרעה: מי מנהל בפועל — הקופות, המנהל המורשה, או דירקטוריון מעורב.</div>
                         </div>
                     </td>
                 </tr>
@@ -1681,6 +1760,23 @@ class App {
                     <div class="cs-pc-block"><div class="cs-pc-title cons">חסרונות</div><ul class="cs-pc-list cons"><li>✗ הכי קשה משפטית</li></ul></div>
                     <div class="cs-pc-block"><div class="cs-pc-title justify">הצדקה</div><ul class="cs-pc-list justify"><li>★ Run Off — אין מבוטחים חדשים, נדרש ניהול מאוחד</li><li>★ סיוע ממשלתי זהה בין אם מדובר בקרן אחת או בקרנות נפרדות</li></ul></div>
                     <div class="cs-pc-block"><div class="cs-pc-title" style="color:#7c3aed;font-weight:700">פתרון אפשרי</div><ul class="cs-pc-list" style="color:#5b21b6"><li>★ הלאמה של חלק מהקרן של מכבי</li></ul></div>
+
+                    <details class="cs-precedent-box">
+                        <summary class="cs-precedent-summary">
+                            <span class="cs-precedent-icon">⚖️</span>
+                            <span class="cs-precedent-title">תקדים משפטי — פס"ד הדסה</span>
+                            <span class="cs-precedent-arrow">◄</span>
+                        </summary>
+                        <div class="cs-precedent-content">
+                            <p class="cs-precedent-intro">בית הדין מסביר את הרציונל בכמה רבדים:</p>
+                            <ol class="cs-precedent-list">
+                                <li><strong>המדינה התנדבה לשאת בנטל</strong> — היא לא הייתה חייבת לפי הדין הקודם, אבל בחרה להציל. בתמורה, היא רשאית להטיל חובה גם על שאר ה"שחקנים".</li>
+                                <li><strong>התוספת לא נגזרת מהגירעון הספציפי</strong> — זוהי הנקודה העקרונית: התוספת לא חושבה לפי תרומת כל עמית/מעסיק לגירעון של הקרן הספציפית שלו. זה הסדר אחיד.</li>
+                                <li><strong>לא הפתרון "הצודק" ביותר — אבל ה"נכון"</strong> — בית הדין מודה בכך מפורשות: עמית בקרן חזקה יותר נדרש לתוספת זהה לעמית בקרן חלשה יותר, וזה לא צודק במובן האריתמטי הצר. אבל זה ישים, פרקטי ויעיל בהקשר של הליך הבראה.</li>
+                                <li><strong>כולם נרתמו "בעל כורחם — אך לטובתם"</strong> — גם המעסיקים והעמיתים בקרנות החזקות נהנים מההצלה (אחרת הקרן שלהם הייתה קורסת בסופו של דבר), ולכן צודק לדרוש מהם השתתפות גם אם היא לא פרופורציונלית במדויק.</li>
+                            </ol>
+                        </div>
+                    </details>
                 </div>
             </div>
 
