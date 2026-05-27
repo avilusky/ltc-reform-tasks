@@ -1227,7 +1227,7 @@ class App {
             },
             {
                 id: 'tender-alternatives',
-                title: 'חלופות מכרז',
+                title: 'חלופות לגוף המבצע את המכרז',
                 desc: 'שלוש חלופות לאופן ביצוע המכרז · השוואה לפי 5 העקרונות של הממונה',
                 icon: '⚖️',
                 date: '27 במאי 2026',
@@ -2399,8 +2399,8 @@ class App {
     <div class="ta-top-bar">
         <button class="rm-action-btn" onclick="app.closeBoardroomItem()">→ חזרה לחדר ישיבות</button>
         <div class="ta-title-group">
-            <h2 class="ta-title">⚖️ חלופות מכרז</h2>
-            <div class="ta-subtitle">27 במאי 2026 · הצגה לממונה — שלוש חלופות לאופן ביצוע המכרז</div>
+            <h2 class="ta-title">⚖️ חלופות לגוף המבצע את המכרז</h2>
+            <div class="ta-subtitle">27 במאי 2026 · הצגה לממונה</div>
         </div>
         <div style="width:140px"></div>
     </div>
@@ -2456,8 +2456,6 @@ class App {
                 <div class="ta-detail-row"><div class="ta-detail-label">מקור</div><div class="ta-detail-value">המודל הקיים</div></div>
                 <div class="ta-detail-row"><div class="ta-detail-label">מי מבצע</div><div class="ta-detail-value">כל קופה בנפרד</div></div>
                 <div class="ta-detail-row"><div class="ta-detail-label">מה מוכרים</div><div class="ta-detail-value">מבוטחי הקופה הספציפית</div></div>
-                <div class="ta-detail-row"><div class="ta-detail-label">תמורה לקופות</div><div class="ta-detail-value">דמי ניהול / החזר הוצאות / פיצוי</div></div>
-                <div class="ta-detail-row"><div class="ta-detail-label">סיעודית</div><div class="ta-detail-value">נדרשת הקמה במקביל למכרז. הזרמת המבוגרים לסיעודית בכל מקרה.</div></div>
 
                 <div class="ta-pc-block">
                     <div class="ta-pc-title pros">יתרונות</div>
@@ -2494,19 +2492,16 @@ class App {
 
                 <div class="ta-detail-row"><div class="ta-detail-label">מקור</div><div class="ta-detail-value">"חיסכון לכל ילד"</div></div>
                 <div class="ta-detail-row"><div class="ta-detail-label">מי מבצע</div><div class="ta-detail-value">הרשות או הקופות — מכרז יחיד</div></div>
-                <div class="ta-detail-row"><div class="ta-detail-label">מה מוכרים</div><div class="ta-detail-value">כלל מבוטחי הקופות, שיבוץ רנדומלי</div></div>
-                <div class="ta-detail-row"><div class="ta-detail-label">תמורה לקופות</div><div class="ta-detail-value">בתנאי שהקופות משתתפות בתהליך — דמי ניהול / החזר הוצאות</div></div>
-                <div class="ta-detail-row"><div class="ta-detail-label">סיעודית</div><div class="ta-detail-value">לא מוקם גוף לטובת המכרז. הזרמת המבוגרים לסיעודית בתהליך נפרד.</div></div>
+                <div class="ta-detail-row"><div class="ta-detail-label">מה מוכרים</div><div class="ta-detail-value">כלל מבוטחי הקופות, שיבוץ לפי מנגנון שייקבע מראש</div></div>
 
                 <div class="ta-pc-block">
                     <div class="ta-pc-title pros">יתרונות</div>
                     <ul class="ta-pc-list pros">
-                        <li>שוויוניות מול חברות הביטוח</li>
-                        <li>פשטות ניהולית — מכרז יחיד</li>
+                        <li>מכרז יחיד</li>
                         <li>שווי מבוטח אחיד</li>
                         <li>שליטה בהקצאה</li>
                         <li>לוח זמנים קצר — ללא הקמת גוף</li>
-                        <li>תקדים מוכח</li>
+                        <li>מקסום שווי</li>
                     </ul>
                 </div>
 
@@ -2515,6 +2510,9 @@ class App {
                     <ul class="ta-pc-list cons">
                         <li>ייתכן ביצוע על ידי הרשות</li>
                         <li>מעורבות הקופות</li>
+                        <li>בירוקרטיה ומורכבות</li>
+                        <li>תהליך ארוך</li>
+                        <li>הרשות בתפקיד המבצע</li>
                     </ul>
                 </div>
             </div>
@@ -2535,28 +2533,25 @@ class App {
                 <div class="ta-detail-row"><div class="ta-detail-label">מקור</div><div class="ta-detail-value">קרנות הפנסיה הוותיקות</div></div>
                 <div class="ta-detail-row"><div class="ta-detail-label">מי מבצע</div><div class="ta-detail-value">תאגיד סיעודית</div></div>
                 <div class="ta-detail-row"><div class="ta-detail-label">מה מוכרים</div><div class="ta-detail-value">הפרטת חברת הבת המכילה את הצעירים.</div></div>
-                <div class="ta-detail-row"><div class="ta-detail-label">תמורה לקופות</div><div class="ta-detail-value">בהחלטת סיעודית</div></div>
-                <div class="ta-detail-row"><div class="ta-detail-label">סיעודית</div><div class="ta-detail-value">התאגיד מוקם מראש, כלל המבוטחים מוזרמים אליו, והמכרז מתבצע ממנו.</div></div>
 
                 <div class="ta-pc-block">
                     <div class="ta-pc-title pros">יתרונות</div>
                     <ul class="ta-pc-list pros">
-                        <li>שליטה מלאה</li>
+                        <li>שליטה רבה בתהליך</li>
                         <li>מקסום שווי — כל התמורה לסיעודית</li>
                         <li>הפרדה מבנית בין הצעירים למבוגרים</li>
                         <li>מנגנון חלוקה מובנה</li>
-                        <li>שוויוניות מול חברות הביטוח</li>
                         <li>מכרז יחיד</li>
                         <li>שווי מבוטח אחיד</li>
                         <li>שליטה בהקצאה</li>
+                        <li>שימוש בגופים פרטיים ללא צורך בבירוקרטיה מדינתית</li>
                     </ul>
                 </div>
 
                 <div class="ta-pc-block">
                     <div class="ta-pc-title cons">חסרונות</div>
                     <ul class="ta-pc-list cons">
-                        <li>ביצוע על ידי המדינה</li>
-                        <li>לוח זמנים ארוך</li>
+                        <li>תהליך ארוך</li>
                         <li>מורכבות תפעולית — חברת-בת בתוך תאגיד</li>
                         <li>הרשות עוברת לתפקיד מבצע</li>
                     </ul>
@@ -2588,8 +2583,8 @@ class App {
                 </tr>
                 <tr>
                     <td>2. יציבות המודל</td>
+                    <td><span class="ta-score low">נמוך</span></td>
                     <td><span class="ta-score medium">בינוני</span></td>
-                    <td><span class="ta-score high">גבוה</span></td>
                     <td><span class="ta-score high">גבוה</span></td>
                 </tr>
                 <tr>
@@ -2601,14 +2596,14 @@ class App {
                 <tr>
                     <td>4. מנגנון חלוקת שווי</td>
                     <td><span class="ta-score medium">בינוני</span></td>
-                    <td><span class="ta-score medium">בינוני</span></td>
+                    <td><span class="ta-score high">גבוה</span></td>
                     <td><span class="ta-score high">גבוה</span></td>
                 </tr>
                 <tr>
                     <td>5. פיקוח לעומת ביצוע</td>
                     <td><span class="ta-score supervise">פיקוח</span></td>
-                    <td><span class="ta-score mixed">פיקוח / ביצוע</span></td>
                     <td><span class="ta-score exec">ביצוע</span></td>
+                    <td><span class="ta-score supervise">פיקוח</span></td>
                 </tr>
             </tbody>
         </table>
