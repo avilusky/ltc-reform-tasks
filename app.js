@@ -2451,7 +2451,7 @@ class App {
                 </div>
             </div>
             <div class="ta-alt-body">
-                <div class="ta-alt-desc">כל קופה מקיימת מכרז עצמאי. החברה הזוכה מקבלת את מבוטחי הקופה.</div>
+                <div class="ta-alt-desc">כל קופה מקיימת מכרז עצמאי. החברות הזוכות מקבלות את מבוטחי הקופה.</div>
 
                 <div class="ta-detail-row"><div class="ta-detail-label">מקור</div><div class="ta-detail-value">המודל הקיים</div></div>
                 <div class="ta-detail-row"><div class="ta-detail-label">מי מבצע</div><div class="ta-detail-value">כל קופה בנפרד</div></div>
@@ -2461,7 +2461,7 @@ class App {
                     <div class="ta-pc-title pros">יתרונות</div>
                     <ul class="ta-pc-list pros">
                         <li>מיומנות הקופות בביצוע מכרזים</li>
-                        <li>שינוי תהליכי מינימלי</li>
+                        <li>תהליך קצר יחסית</li>
                         <li>הרשות מפקחת, אינה מבצעת</li>
                     </ul>
                 </div>
@@ -2469,7 +2469,7 @@ class App {
                 <div class="ta-pc-block">
                     <div class="ta-pc-title cons">חסרונות</div>
                     <ul class="ta-pc-list cons">
-                        <li>דרישה לתמורה גבוהה מהקופות</li>
+                        <li>תמורה לקופות</li>
                         <li>פערי שווי בין מבוטחי הקופות השונות</li>
                         <li>שליטה מוגבלת בחלוקת המבוטחים בין הזוכים</li>
                         <li>ארבעה תהליכים מקבילים — קושי תיאומי</li>
@@ -2488,7 +2488,7 @@ class App {
                 </div>
             </div>
             <div class="ta-alt-body">
-                <div class="ta-alt-desc">מכרז אחד מרוכז על ידי האוצר או הקופות. שיבוץ המבוטחים לחברות הזוכות רנדומלית.</div>
+                <div class="ta-alt-desc">מכרז אחד מרוכז על ידי האוצר או הקופות.</div>
 
                 <div class="ta-detail-row"><div class="ta-detail-label">מקור</div><div class="ta-detail-value">"חיסכון לכל ילד"</div></div>
                 <div class="ta-detail-row"><div class="ta-detail-label">מי מבצע</div><div class="ta-detail-value">הרשות או הקופות — מכרז יחיד</div></div>
@@ -2499,7 +2499,6 @@ class App {
                     <ul class="ta-pc-list pros">
                         <li>מכרז יחיד</li>
                         <li>שווי מבוטח אחיד</li>
-                        <li>לוח זמנים קצר — ללא הקמת גוף</li>
                         <li>מקסום שווי</li>
                     </ul>
                 </div>
@@ -2526,21 +2525,22 @@ class App {
                 <div class="ta-alt-badge">המלצת הצוות</div>
             </div>
             <div class="ta-alt-body">
-                <div class="ta-alt-desc">הקמת תאגיד סטטוטורי בשם "סיעודית". הזרמת כלל המבוטחים מארבע הקרנות לתאגיד, והעברת הצעירים לחברת-בת בתוכו. סיעודית מבצעת את המכרז למכירת חברת-הבת.</div>
+                <div class="ta-alt-desc">הקמת תאגיד סטטוטורי בשם "סיעודית". הזרמת כלל המבוטחים מארבע הקרנות לתאגיד, והעברת הצעירים לחברת בת בתוכו. סיעודית מבצעת את המכרז למכירת חברת הבת.</div>
 
                 <div class="ta-detail-row"><div class="ta-detail-label">מקור</div><div class="ta-detail-value">קרנות הפנסיה הוותיקות</div></div>
                 <div class="ta-detail-row"><div class="ta-detail-label">מי מבצע</div><div class="ta-detail-value">תאגיד סיעודית</div></div>
-                <div class="ta-detail-row"><div class="ta-detail-label">מה מוכרים</div><div class="ta-detail-value">הפרטת חברת הבת המכילה את הצעירים.</div></div>
+                <div class="ta-detail-row"><div class="ta-detail-label">מה מוכרים</div><div class="ta-detail-value">חברת בת המכילה את הצעירים.</div></div>
 
                 <div class="ta-pc-block">
                     <div class="ta-pc-title pros">יתרונות</div>
                     <ul class="ta-pc-list pros">
-                        <li>שליטה רבה בתהליך</li>
-                        <li>מקסום שווי — כל התמורה לסיעודית</li>
-                        <li>הפרדה מבנית בין הצעירים למבוגרים</li>
-                        <li>מנגנון חלוקה מובנה</li>
                         <li>מכרז יחיד</li>
                         <li>שווי מבוטח אחיד</li>
+                        <li>מקסום שווי — כל התמורה לסיעודית</li>
+                        <li>שליטה רבה בתהליך</li>
+                        <li>הרשות מפקחת ולא מבצעת</li>
+                        <li>הפרדה מבנית בין הצעירים למבוגרים</li>
+                        <li>מנגנון חלוקה מובנה</li>
                         <li>שימוש בגופים פרטיים ללא צורך בבירוקרטיה מדינתית</li>
                     </ul>
                 </div>
@@ -2549,8 +2549,7 @@ class App {
                     <div class="ta-pc-title cons">חסרונות</div>
                     <ul class="ta-pc-list cons">
                         <li>תהליך ארוך</li>
-                        <li>מורכבות תפעולית — חברת-בת בתוך תאגיד</li>
-                        <li>הרשות עוברת לתפקיד מבצע</li>
+                        <li>מורכבות תפעולית — חברת בת בתוך תאגיד</li>
                     </ul>
                 </div>
             </div>
@@ -2575,7 +2574,7 @@ class App {
                 <tr>
                     <td>1. מקסום שווי</td>
                     <td><span class="ta-score medium">בינוני</span></td>
-                    <td><span class="ta-score medium">בינוני</span></td>
+                    <td><span class="ta-score high">גבוה</span></td>
                     <td><span class="ta-score high">גבוה</span></td>
                 </tr>
                 <tr>
