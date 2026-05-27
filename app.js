@@ -1224,6 +1224,14 @@ class App {
                 icon: '🏛️',
                 date: '29 באפריל 2026',
                 color: '#2563eb'
+            },
+            {
+                id: 'tender-alternatives',
+                title: 'חלופות מכרז',
+                desc: 'שלוש חלופות לאופן ביצוע המכרז · השוואה לפי 5 העקרונות של הממונה',
+                icon: '⚖️',
+                date: '27 במאי 2026',
+                color: '#2563eb'
             }
         ];
 
@@ -1256,6 +1264,8 @@ class App {
             content.innerHTML = this.getRoadmapHTML();
         } else if (id === 'corporate-structure') {
             content.innerHTML = this.getCorporateStructureHTML();
+        } else if (id === 'tender-alternatives') {
+            content.innerHTML = this.getTenderAlternativesHTML();
         }
     }
 
@@ -2281,6 +2291,332 @@ class App {
         if (!dateStr) return '-';
         const d = new Date(dateStr);
         return d.toLocaleDateString('he-IL', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    getTenderAlternativesHTML() {
+        return `
+<style>
+.ta-container { padding: 24px; max-width: 1400px; margin: 0 auto; direction: rtl; }
+.ta-top-bar { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid #e5e7eb; }
+.ta-title-group { text-align:center; flex:1; }
+.ta-title { font-size: 26px; font-weight: 800; color:#111827; margin:0; }
+.ta-subtitle { font-size: 14px; color:#6b7280; margin:4px 0 0; }
+
+.ta-intro { background:#f9fafb; border-right:4px solid #2563eb; padding:14px 18px; border-radius:8px; margin-bottom:24px; font-size:13.5px; color:#374151; line-height:1.7; font-style:italic; }
+
+.ta-section-title { font-size:18px; font-weight:800; color:#1e3a8a; margin:24px 0 12px; padding-bottom:8px; border-bottom:2px solid #e0e7ff; }
+.ta-section-sub { font-size:13.5px; color:#6b7280; margin:0 0 18px; }
+
+/* עקרונות */
+.ta-principles { background:white; border:1px solid #e5e7eb; border-radius:12px; overflow:hidden; margin-bottom:24px; box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+.ta-principle-row { display:flex; align-items:stretch; border-bottom:1px solid #f3f4f6; }
+.ta-principle-row:last-child { border-bottom:none; }
+.ta-principle-num { background:linear-gradient(180deg,#1e3a8a,#1d4ed8); color:white; width:48px; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:800; flex-shrink:0; }
+.ta-principle-name { padding:12px 16px; font-weight:700; color:#1e3a8a; min-width:200px; background:#eff6ff; display:flex; align-items:center; }
+.ta-principle-desc { padding:12px 16px; font-size:13.5px; color:#374151; flex:1; display:flex; align-items:center; }
+
+/* כרטיסי חלופות */
+.ta-alternatives-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; margin-bottom:28px; align-items:start; }
+@media (max-width:1100px){ .ta-alternatives-grid{grid-template-columns:1fr;} }
+
+.ta-alt-card { background:white; border-radius:14px; border:1px solid #e5e7eb; box-shadow:0 2px 6px rgba(0,0,0,0.06); overflow:hidden; display:flex; flex-direction:column; transition:transform 0.2s, box-shadow 0.2s; }
+.ta-alt-card.preferred { border:2px solid #10b981; box-shadow:0 4px 16px rgba(16,185,129,0.15); }
+
+.ta-alt-header { padding:14px 16px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.ta-alt-header.alt-1 { background:linear-gradient(135deg,#fed7aa,#fb923c); color:#7c2d12; }
+.ta-alt-header.alt-2 { background:linear-gradient(135deg,#bfdbfe,#3b82f6); color:#1e3a8a; }
+.ta-alt-header.alt-3 { background:linear-gradient(135deg,#a7f3d0,#10b981); color:#064e3b; }
+.ta-alt-num { font-size:11px; font-weight:700; letter-spacing:.1em; opacity:.85; }
+.ta-alt-name { font-size:16px; font-weight:800; margin-top:2px; }
+.ta-alt-badge { background:rgba(255,255,255,0.5); padding:4px 10px; border-radius:999px; font-size:11px; font-weight:700; }
+
+.ta-alt-body { padding:14px 16px; flex:1; }
+.ta-alt-desc { font-size:13px; color:#374151; line-height:1.65; margin-bottom:14px; }
+
+.ta-detail-row { display:flex; gap:10px; padding:8px 0; border-bottom:1px dashed #f3f4f6; font-size:12.5px; }
+.ta-detail-row:last-of-type { border-bottom:none; }
+.ta-detail-label { font-weight:700; color:#1e3a8a; min-width:90px; flex-shrink:0; }
+.ta-detail-value { color:#374151; line-height:1.55; flex:1; }
+.ta-detail-value.open { color:#9ca3af; font-style:italic; }
+
+.ta-pc-block { margin-top:14px; }
+.ta-pc-title { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; padding-bottom:4px; border-bottom:1px solid currentColor; }
+.ta-pc-title.pros { color:#047857; }
+.ta-pc-title.cons { color:#b91c1c; }
+.ta-pc-list { margin:0; padding:0; list-style:none; font-size:12.5px; line-height:1.65; }
+.ta-pc-list li { padding:3px 0; }
+.ta-pc-list.pros li::before { content:"✓ "; font-weight:800; color:#047857; }
+.ta-pc-list.cons li::before { content:"✗ "; font-weight:800; color:#b91c1c; }
+.ta-pc-list.pros li { color:#065f46; }
+.ta-pc-list.cons li { color:#991b1b; }
+
+/* טבלת התאמה לעקרונות */
+.ta-match-wrap { background:white; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,0.06); overflow:hidden; border:1px solid #e5e7eb; margin-bottom:24px; }
+.ta-match-table { width:100%; border-collapse:collapse; }
+.ta-match-table thead th { background:linear-gradient(180deg,#1e3a8a,#1d4ed8); color:white; font-weight:700; font-size:13px; padding:12px 14px; text-align:center; }
+.ta-match-table thead th:first-child { text-align:right; }
+.ta-match-table tbody td { padding:14px; text-align:center; border-bottom:1px solid #f3f4f6; font-size:13px; }
+.ta-match-table tbody td:first-child { text-align:right; font-weight:700; color:#1e3a8a; }
+.ta-match-table tbody tr:nth-child(even) { background:#fafbff; }
+.ta-match-table tbody tr:last-child td { border-bottom:none; }
+
+.ta-score { display:inline-block; padding:6px 14px; border-radius:999px; font-weight:800; font-size:12.5px; letter-spacing:.02em; }
+.ta-score.high { background:#d1fae5; color:#065f46; }
+.ta-score.medium { background:#fef3c7; color:#92400e; }
+.ta-score.low { background:#fee2e2; color:#991b1b; }
+.ta-score.exec { background:#fee2e2; color:#991b1b; }
+.ta-score.supervise { background:#d1fae5; color:#065f46; }
+.ta-score.mixed { background:#fef3c7; color:#92400e; }
+
+.ta-match-note { font-size:11.5px; color:#6b7280; margin-top:6px; font-style:italic; }
+
+/* המלצה */
+.ta-recommendation { background:linear-gradient(135deg,#ecfdf5,#d1fae5); border:2px solid #10b981; border-radius:14px; padding:22px 26px; margin-bottom:24px; box-shadow:0 4px 12px rgba(16,185,129,0.1); }
+.ta-rec-icon { font-size:32px; margin-bottom:8px; display:block; }
+.ta-rec-title { font-size:20px; font-weight:800; color:#064e3b; margin:0 0 12px; }
+.ta-rec-content { font-size:14px; color:#065f46; line-height:1.75; }
+.ta-rec-content ul { margin:8px 0; padding-right:22px; }
+.ta-rec-content li { padding:3px 0; }
+.ta-rec-content strong { color:#064e3b; }
+
+/* נקודות פתוחות */
+.ta-open-wrap { background:white; border:1px solid #fde68a; border-radius:12px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+.ta-open-header { background:linear-gradient(135deg,#fef3c7,#fde68a); padding:14px 18px; border-bottom:1px solid #fcd34d; font-weight:800; color:#92400e; font-size:15px; display:flex; align-items:center; gap:8px; }
+.ta-open-table { width:100%; border-collapse:collapse; }
+.ta-open-table tbody td { padding:12px 14px; border-bottom:1px solid #fef3c7; font-size:13px; vertical-align:top; }
+.ta-open-table tbody tr:last-child td { border-bottom:none; }
+.ta-open-table tbody td:first-child { font-weight:800; color:#92400e; width:36px; text-align:center; }
+.ta-open-title { font-weight:700; color:#1f2937; margin-bottom:3px; }
+.ta-open-desc { color:#6b7280; font-size:12.5px; line-height:1.55; }
+
+.ta-urgency { display:inline-block; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:700; }
+.ta-urgency.high { background:#fee2e2; color:#991b1b; }
+.ta-urgency.medium { background:#fef3c7; color:#92400e; }
+.ta-urgency.low { background:#e0e7ff; color:#3730a3; }
+</style>
+
+<div class="ta-container">
+    <div class="ta-top-bar">
+        <button class="rm-action-btn" onclick="app.closeBoardroomItem()">→ חזרה לחדר ישיבות</button>
+        <div class="ta-title-group">
+            <h2 class="ta-title">⚖️ חלופות מכרז</h2>
+            <div class="ta-subtitle">27 במאי 2026 · הצגה לממונה — שלוש חלופות לאופן ביצוע המכרז</div>
+        </div>
+        <div style="width:140px"></div>
+    </div>
+
+    <!-- 5 העקרונות -->
+    <h3 class="ta-section-title">חמש עקרונות הממונה</h3>
+
+    <div class="ta-principles">
+        <div class="ta-principle-row">
+            <div class="ta-principle-num">1</div>
+            <div class="ta-principle-name">מקסום שווי</div>
+            <div class="ta-principle-desc">בכפוף לעקרונות האחרים</div>
+        </div>
+        <div class="ta-principle-row">
+            <div class="ta-principle-num">2</div>
+            <div class="ta-principle-name">יציבות המודל</div>
+            <div class="ta-principle-desc">ודאות מספקת. שלא תהיה נטישה. שלא יערער יציבות.</div>
+        </div>
+        <div class="ta-principle-row">
+            <div class="ta-principle-num">3</div>
+            <div class="ta-principle-name">שקיפות מלאה</div>
+            <div class="ta-principle-desc">ידוע מראש מההתחלה ועד הסוף</div>
+        </div>
+        <div class="ta-principle-row">
+            <div class="ta-principle-num">4</div>
+            <div class="ta-principle-name">חלוקה צעירים-מבוגרים</div>
+            <div class="ta-principle-desc">מנגנון חלוקת שווי בין הקבוצות</div>
+        </div>
+        <div class="ta-principle-row">
+            <div class="ta-principle-num">5</div>
+            <div class="ta-principle-name">פיקוח לעומת ביצוע</div>
+            <div class="ta-principle-desc">כמה שיותר מפקחים, לא מבצעים.</div>
+        </div>
+    </div>
+
+    <!-- 3 החלופות -->
+    <h3 class="ta-section-title">שלוש החלופות</h3>
+    <p class="ta-section-sub">מאפיינים, יתרונות וחסרונות.</p>
+
+    <div class="ta-alternatives-grid">
+
+        <!-- חלופה 1 -->
+        <div class="ta-alt-card">
+            <div class="ta-alt-header alt-1">
+                <div>
+                    <div class="ta-alt-num">חלופה 1</div>
+                    <div class="ta-alt-name">הקופות יוצאות למכרז</div>
+                </div>
+            </div>
+            <div class="ta-alt-body">
+                <div class="ta-alt-desc">כל קופה מקיימת מכרז עצמאי. החברה הזוכה מקבלת את מבוטחי הקופה.</div>
+
+                <div class="ta-detail-row"><div class="ta-detail-label">מקור</div><div class="ta-detail-value">המודל הקיים</div></div>
+                <div class="ta-detail-row"><div class="ta-detail-label">מי מבצע</div><div class="ta-detail-value">כל קופה בנפרד</div></div>
+                <div class="ta-detail-row"><div class="ta-detail-label">מה מוכרים</div><div class="ta-detail-value">מבוטחי הקופה הספציפית</div></div>
+                <div class="ta-detail-row"><div class="ta-detail-label">תמורה לקופות</div><div class="ta-detail-value">דמי ניהול / החזר הוצאות / פיצוי</div></div>
+                <div class="ta-detail-row"><div class="ta-detail-label">סיעודית</div><div class="ta-detail-value">נדרשת הקמה במקביל למכרז. הזרמת המבוגרים לסיעודית בכל מקרה.</div></div>
+
+                <div class="ta-pc-block">
+                    <div class="ta-pc-title pros">יתרונות</div>
+                    <ul class="ta-pc-list pros">
+                        <li>מיומנות הקופות בביצוע מכרזים</li>
+                        <li>שינוי תהליכי מינימלי</li>
+                        <li>הרשות מפקחת, אינה מבצעת</li>
+                    </ul>
+                </div>
+
+                <div class="ta-pc-block">
+                    <div class="ta-pc-title cons">חסרונות</div>
+                    <ul class="ta-pc-list cons">
+                        <li>דרישה לתמורה גבוהה מהקופות</li>
+                        <li>פערי שווי בין מבוטחי הקופות השונות</li>
+                        <li>שליטה מוגבלת בחלוקת המבוטחים בין הזוכים</li>
+                        <li>ארבעה תהליכים מקבילים — קושי תיאומי</li>
+                        <li>שיתוף פעולה מוגבל בין הקופות</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- חלופה 2 -->
+        <div class="ta-alt-card">
+            <div class="ta-alt-header alt-2">
+                <div>
+                    <div class="ta-alt-num">חלופה 2</div>
+                    <div class="ta-alt-name">מודל "חיסכון לכל ילד" — מכרז מרוכז</div>
+                </div>
+            </div>
+            <div class="ta-alt-body">
+                <div class="ta-alt-desc">מכרז אחד מרוכז על ידי האוצר או הקופות. שיבוץ המבוטחים לחברות הזוכות רנדומלית.</div>
+
+                <div class="ta-detail-row"><div class="ta-detail-label">מקור</div><div class="ta-detail-value">"חיסכון לכל ילד"</div></div>
+                <div class="ta-detail-row"><div class="ta-detail-label">מי מבצע</div><div class="ta-detail-value">הרשות או הקופות — מכרז יחיד</div></div>
+                <div class="ta-detail-row"><div class="ta-detail-label">מה מוכרים</div><div class="ta-detail-value">כלל מבוטחי הקופות, שיבוץ רנדומלי</div></div>
+                <div class="ta-detail-row"><div class="ta-detail-label">תמורה לקופות</div><div class="ta-detail-value">בתנאי שהקופות משתתפות בתהליך — דמי ניהול / החזר הוצאות</div></div>
+                <div class="ta-detail-row"><div class="ta-detail-label">סיעודית</div><div class="ta-detail-value">לא מוקם גוף לטובת המכרז. הזרמת המבוגרים לסיעודית בתהליך נפרד.</div></div>
+
+                <div class="ta-pc-block">
+                    <div class="ta-pc-title pros">יתרונות</div>
+                    <ul class="ta-pc-list pros">
+                        <li>שוויוניות מול חברות הביטוח</li>
+                        <li>פשטות ניהולית — מכרז יחיד</li>
+                        <li>שווי מבוטח אחיד</li>
+                        <li>שליטה בהקצאה</li>
+                        <li>לוח זמנים קצר — ללא הקמת גוף</li>
+                        <li>תקדים מוכח</li>
+                    </ul>
+                </div>
+
+                <div class="ta-pc-block">
+                    <div class="ta-pc-title cons">חסרונות</div>
+                    <ul class="ta-pc-list cons">
+                        <li>ייתכן ביצוע על ידי הרשות</li>
+                        <li>מעורבות הקופות</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- חלופה 3 -->
+        <div class="ta-alt-card preferred">
+            <div class="ta-alt-header alt-3">
+                <div>
+                    <div class="ta-alt-num">חלופה 3</div>
+                    <div class="ta-alt-name">דרך "סיעודית"</div>
+                </div>
+                <div class="ta-alt-badge">המלצת הצוות</div>
+            </div>
+            <div class="ta-alt-body">
+                <div class="ta-alt-desc">הקמת תאגיד סטטוטורי בשם "סיעודית". הזרמת כלל המבוטחים מארבע הקרנות לתאגיד, והעברת הצעירים לחברת-בת בתוכו. סיעודית מבצעת את המכרז למכירת חברת-הבת.</div>
+
+                <div class="ta-detail-row"><div class="ta-detail-label">מקור</div><div class="ta-detail-value">קרנות הפנסיה הוותיקות</div></div>
+                <div class="ta-detail-row"><div class="ta-detail-label">מי מבצע</div><div class="ta-detail-value">תאגיד סיעודית</div></div>
+                <div class="ta-detail-row"><div class="ta-detail-label">מה מוכרים</div><div class="ta-detail-value">הפרטת חברת הבת המכילה את הצעירים.</div></div>
+                <div class="ta-detail-row"><div class="ta-detail-label">תמורה לקופות</div><div class="ta-detail-value">בהחלטת סיעודית</div></div>
+                <div class="ta-detail-row"><div class="ta-detail-label">סיעודית</div><div class="ta-detail-value">התאגיד מוקם מראש, כלל המבוטחים מוזרמים אליו, והמכרז מתבצע ממנו.</div></div>
+
+                <div class="ta-pc-block">
+                    <div class="ta-pc-title pros">יתרונות</div>
+                    <ul class="ta-pc-list pros">
+                        <li>שליטה מלאה</li>
+                        <li>מקסום שווי — כל התמורה לסיעודית</li>
+                        <li>הפרדה מבנית בין הצעירים למבוגרים</li>
+                        <li>מנגנון חלוקה מובנה</li>
+                        <li>שוויוניות מול חברות הביטוח</li>
+                        <li>מכרז יחיד</li>
+                        <li>שווי מבוטח אחיד</li>
+                        <li>שליטה בהקצאה</li>
+                    </ul>
+                </div>
+
+                <div class="ta-pc-block">
+                    <div class="ta-pc-title cons">חסרונות</div>
+                    <ul class="ta-pc-list cons">
+                        <li>ביצוע על ידי המדינה</li>
+                        <li>לוח זמנים ארוך</li>
+                        <li>מורכבות תפעולית — חברת-בת בתוך תאגיד</li>
+                        <li>הרשות עוברת לתפקיד מבצע</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- טבלת התאמה לעקרונות -->
+    <h3 class="ta-section-title">התאמה לעקרונות הממונה</h3>
+
+    <div class="ta-match-wrap">
+        <table class="ta-match-table">
+            <thead>
+                <tr>
+                    <th>עיקרון</th>
+                    <th>חלופה 1<br>הקופות יוצאות למכרז</th>
+                    <th>חלופה 2<br>חיסכון לכל ילד</th>
+                    <th>חלופה 3<br>סיעודית</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1. מקסום שווי</td>
+                    <td><span class="ta-score medium">בינוני</span></td>
+                    <td><span class="ta-score medium">בינוני</span></td>
+                    <td><span class="ta-score high">גבוה</span></td>
+                </tr>
+                <tr>
+                    <td>2. יציבות המודל</td>
+                    <td><span class="ta-score medium">בינוני</span></td>
+                    <td><span class="ta-score high">גבוה</span></td>
+                    <td><span class="ta-score high">גבוה</span></td>
+                </tr>
+                <tr>
+                    <td>3. שקיפות</td>
+                    <td><span class="ta-score medium">בינוני</span></td>
+                    <td><span class="ta-score high">גבוה</span></td>
+                    <td><span class="ta-score high">גבוה</span></td>
+                </tr>
+                <tr>
+                    <td>4. מנגנון חלוקת שווי</td>
+                    <td><span class="ta-score medium">בינוני</span></td>
+                    <td><span class="ta-score medium">בינוני</span></td>
+                    <td><span class="ta-score high">גבוה</span></td>
+                </tr>
+                <tr>
+                    <td>5. פיקוח לעומת ביצוע</td>
+                    <td><span class="ta-score supervise">פיקוח</span></td>
+                    <td><span class="ta-score mixed">פיקוח / ביצוע</span></td>
+                    <td><span class="ta-score exec">ביצוע</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+</div>
+        `;
     }
 
 }
